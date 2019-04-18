@@ -1,0 +1,50 @@
+[12-Jan-2019 05:28:59 America/Los_Angeles] PHP Warning:  PHP Startup: magickwand: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:28:59 America/Los_Angeles] PHP Warning:  PHP Startup: mailparse: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:28:59 America/Los_Angeles] PHP Warning:  PHP Startup: OAuth: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:28:59 America/Los_Angeles] PHP Warning:  PHP Startup: oci8: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:28:59 America/Los_Angeles] PHP Warning:  PHP Startup: uploadprogress: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:29:05 America/Los_Angeles] PHP Warning:  PHP Startup: magickwand: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:29:05 America/Los_Angeles] PHP Warning:  PHP Startup: mailparse: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:29:05 America/Los_Angeles] PHP Warning:  PHP Startup: OAuth: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:29:05 America/Los_Angeles] PHP Warning:  PHP Startup: oci8: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0
+[12-Jan-2019 05:29:05 America/Los_Angeles] PHP Warning:  PHP Startup: uploadprogress: Unable to initialize module
+Module compiled with module API=20060613
+PHP    compiled with module API=20131226
+These options need to match
+ in Unknown on line 0

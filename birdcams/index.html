@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Birdcams</title>
+
+    <style>
+        * { box-sizing: border-box;}
+        body { margin: 0; padding: 0; background-color: #000 }
+        .container {
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            height: 100vh;
+            width: 100vw;
+        }
+        .outer-frame-container {
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .frame-container {
+            display: block;
+            position: relative;
+            margin: 0;
+            width: 50%;
+            height: 50%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .frame-container:nth-of-type(1),
+        .frame-container:nth-of-type(2) {
+            border-bottom: 3px solid black; 
+        }
+        .frame-container:nth-of-type(3),
+        .frame-container:nth-of-type(4) {
+            border-top: 3px solid black; 
+        }
+        .frame-container:nth-of-type(1),
+        .frame-container:nth-of-type(3) {
+            border-right: 3px solid black; 
+        }
+        .frame-container:nth-of-type(2),
+        .frame-container:nth-of-type(4) {
+            border-left: 3px solid black; 
+        }
+        
+        iframe {
+            /* height: calc(50vw * .56); */
+            height: 100%;
+            width: 100%;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0);
+            cursor: pointer;
+        }
+        .overlay:hover {
+            /* background-color: rgba(0,0,0,.25);
+            */
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgb(0,0,0);
+        }
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 10px; 
+            right: 25px;
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: .5;
+        }
+        .dropdown:hover {
+            background-color: #eee;
+            opacity: 1;
+        }
+        .dropdown-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 0; 
+            height: 0; 
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #333;
+            cursor: pointer;
+        } 
+        
+        .dropdown-content {
+            visibility: hidden;
+            opacity: 0;
+            display: block;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 300px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            top:100%;
+            right: 0;
+            border-radius: 5px;
+            overflow: auto;
+            max-height: 150px;
+        }
+        .dropdown-content.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .dropdown-item {
+            padding: 5px 10px;
+            border-bottom: 1px solid #aaa;
+        }
+        .dropdown-item:hover {
+            background-color: #eee;
+        }
+        .dropdown-item.live-stream {
+            color: red;
+        }
+        /* Mute Button */
+        .mute-btn {
+            height: 20px;
+            fill: white;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 60px;
+            opacity: .5;
+        }
+        .mute-btn-active {
+            opacity: 1;
+        }
+
+        /* BANNER STYLING */
+        .banner {
+            position: absolute;    
+        }
+        .banner-bottom {
+            bottom: 0;
+            right: 100px;
+            left: 20px;
+            height: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .banner-side {
+            top: 0px;
+            right: 0px;
+            bottom: 100px;
+            width: 100px;
+        }
+        .banner-side-inner {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .banner-item {
+            display: none;
+            border: 1px solid #555;
+        }
+        /* Horizontal */
+        .bnr-square {
+            width: 80px;
+            height:80px;
+            display: block;
+        }
+        .bnr-half-hor {
+            width: 312px;
+            height: 80px;
+        }
+        .bnr-full-hor {
+            width: 624px;
+            height: 80px;
+        }
+        @media (min-width: 532px) {    
+            .bnr-half-hor {        
+                display: block;
+            } 
+        }
+        @media (min-width: 844px) {    
+            .bnr-full-hor {        
+                display: block;
+            } 
+            .bnr-half-hor {        
+                display: none;
+            } 
+        }  
+        @media (min-width: 1076px) {    
+            .bnr-half-hor {        
+                display: block;
+            } 
+            .bnr-full-hor {        
+                display: block;
+            } 
+        }
+        /* Vertical */
+        .bnr-vert {
+            width: 80px;
+            height: 160px;
+        }
+        .bnr-skyscraper {
+            width: 80px;
+            height: 400px;
+        }
+        @media (min-height: 220px) {    
+            .bnr-vert-1 {
+                display: block;
+            }  
+        }
+        @media (min-height: 500px) {    
+            .bnr-vert-2 {
+                display: block;
+            }
+        }
+        @media (min-height: 560px) {    
+            .bnr-skyscraper {        
+                display: block;
+            } 
+            .bnr-vert-1,
+            .bnr-vert-2 {
+                display: none;
+            }
+        }
+        @media (min-height: 740px) {    
+            .bnr-vert-1 {
+                display: block;
+            }
+        }
+
+        /* Screen Option Icons */
+        .screen-options {
+            width: 100%;
+            height: 60px;
+            padding: 0 10px;
+            position: relative;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        #fullscreen-icon {
+            height: 20px;
+            fill: white;
+            cursor: pointer;
+        }
+        #exit-fullscreen,
+        #go-fullscreen {
+            display: none;
+        }
+        #exit-fullscreen.active,
+        #go-fullscreen.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+
+        <div class="outer-frame-container">
+
+            <div class="frame-container">
+                <div id="player-1" class="player"></div>
+
+                <div class="overlay" data-overlay="1" href="#"></div>
+
+                <div class="dropdown">
+                    <div class="dropdown-btn"></div>
+                    <div class="dropdown-content" id="dropdown-content-1"></div>
+                </div>
+
+                <svg version="1.1" class="mute-btn" x="0px" y="0px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+                    <style type="text/css">
+                        .st0{fill:none;stroke:#FFF;stroke-width:4;stroke-linecap:round;stroke-miterlimit:10;}
+                    </style>
+                    <g>
+                        <g>
+                            <path d="M23.2,34.4c0,1.1-0.9,2-2,2H2.4c-1.1,0-2-0.9-2-2V15.5c0-1.1,0.9-2,2-2h18.9c1.1,0,2,0.9,2,2V34.4z"/>
+                        </g>
+                        <g>
+                            <path d="M1.7,23.8c-0.9,0.7-0.9,1.8,0,2.4L25.1,44c0.9,0.7,1.6,0.3,1.6-0.8V6.7c0-1.1-0.7-1.5-1.6-0.8L1.7,23.8z"/>
+                        </g>
+                    </g>
+                    <path class="st0" d="M32.7,33.1c4.5-4.5,4.5-11.7,0-16.1"/>
+                    <path class="st0" d="M39,40.6C47.7,32,47.7,18,39,9.4"/>
+                </svg>
+            </div>
+        
+            <div class="frame-container">
+                <div id="player-2" class="player"></div>
+                <div class="overlay" data-overlay="2" href="#"></div>
+                <div class="dropdown">
+                    <div class="dropdown-btn"></div>
+                    <div class="dropdown-content" id="dropdown-content-2"></div>
+                </div>
+                <svg version="1.1" class="mute-btn" x="0px" y="0px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+                    <style type="text/css">
+                        .st0{fill:none;stroke:#FFF;stroke-width:4;stroke-linecap:round;stroke-miterlimit:10;}
+                    </style>
+                    <g>
+                        <g>
+                            <path d="M23.2,34.4c0,1.1-0.9,2-2,2H2.4c-1.1,0-2-0.9-2-2V15.5c0-1.1,0.9-2,2-2h18.9c1.1,0,2,0.9,2,2V34.4z"/>
+                        </g>
+                        <g>
+                            <path d="M1.7,23.8c-0.9,0.7-0.9,1.8,0,2.4L25.1,44c0.9,0.7,1.6,0.3,1.6-0.8V6.7c0-1.1-0.7-1.5-1.6-0.8L1.7,23.8z"/>
+                        </g>
+                    </g>
+                    <path class="st0" d="M32.7,33.1c4.5-4.5,4.5-11.7,0-16.1"/>
+                    <path class="st0" d="M39,40.6C47.7,32,47.7,18,39,9.4"/>
+                </svg>
+            </div>
+        
+            <div class="frame-container">
+                <div id="player-3" class="player"></div>
+                <div class="overlay" data-overlay="3" href="#"></div>
+                <div class="dropdown">
+                    <div class="dropdown-btn"></div>
+                    <div class="dropdown-content" id="dropdown-content-3"></div>
+                </div>
+                <svg version="1.1" class="mute-btn" x="0px" y="0px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+                    <style type="text/css">
+                        .st0{fill:none;stroke:#FFF;stroke-width:4;stroke-linecap:round;stroke-miterlimit:10;}
+                    </style>
+                    <g>
+                        <g>
+                            <path d="M23.2,34.4c0,1.1-0.9,2-2,2H2.4c-1.1,0-2-0.9-2-2V15.5c0-1.1,0.9-2,2-2h18.9c1.1,0,2,0.9,2,2V34.4z"/>
+                        </g>
+                        <g>
+                            <path d="M1.7,23.8c-0.9,0.7-0.9,1.8,0,2.4L25.1,44c0.9,0.7,1.6,0.3,1.6-0.8V6.7c0-1.1-0.7-1.5-1.6-0.8L1.7,23.8z"/>
+                        </g>
+                    </g>
+                    <path class="st0" d="M32.7,33.1c4.5-4.5,4.5-11.7,0-16.1"/>
+                    <path class="st0" d="M39,40.6C47.7,32,47.7,18,39,9.4"/>
+                </svg>
+            </div>
+        
+            <div class="frame-container">
+                <div id="player-4" class="player"></div>
+                <div class="overlay" data-overlay="4" href="#"></div>
+                <div class="dropdown">
+                    <div class="dropdown-btn"></div>
+                    <div class="dropdown-content" id="dropdown-content-4"></div>
+                </div>
+                <svg version="1.1" class="mute-btn" x="0px" y="0px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+                    <style type="text/css">
+                        .st0{fill:none;stroke:#FFF;stroke-width:4;stroke-linecap:round;stroke-miterlimit:10;}
+                    </style>
+                    <g>
+                        <g>
+                            <path d="M23.2,34.4c0,1.1-0.9,2-2,2H2.4c-1.1,0-2-0.9-2-2V15.5c0-1.1,0.9-2,2-2h18.9c1.1,0,2,0.9,2,2V34.4z"/>
+                        </g>
+                        <g>
+                            <path d="M1.7,23.8c-0.9,0.7-0.9,1.8,0,2.4L25.1,44c0.9,0.7,1.6,0.3,1.6-0.8V6.7c0-1.1-0.7-1.5-1.6-0.8L1.7,23.8z"/>
+                        </g>
+                    </g>
+                    <path class="st0" d="M32.7,33.1c4.5-4.5,4.5-11.7,0-16.1"/>
+                    <path class="st0" d="M39,40.6C47.7,32,47.7,18,39,9.4"/>
+                </svg>
+            </div>
+            
+        </div>
+
+        <div class="banner banner-bottom">
+            <div class="bnr-square banner-item"></div>
+            <div class="bnr-half-hor banner-item"></div>
+            <div class="bnr-full-hor banner-item"></div>
+        </div>
+
+        <div class="banner banner-side">
+
+            <div class="screen-options">
+                    <svg version="1.1" id="fullscreen-icon" x="0px" y="0px"
+                    viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+                        <g id="go-fullscreen" class="active">
+                            <g>
+                                <polygon points="41.6,0 30.6,0 30.6,8.4 41.6,8.4 41.6,19.3 50,19.3 50,8.4 50,0 	"/>
+                            </g>
+                            <g>
+                                <polygon points="49.9,41.4 49.9,30.5 41.5,30.5 41.5,41.4 30.7,41.4 30.7,49.8 41.5,49.8 49.9,49.8 	"/>
+                            </g>
+                            <g>
+                                <polygon points="8.4,49.8 19.3,49.8 19.3,41.3 8.4,41.3 8.4,30.5 -0.1,30.5 -0.1,41.3 -0.1,49.8 	"/>
+                            </g>
+                            <g>
+                                <polygon points="0,8.4 0,19.3 8.4,19.3 8.4,8.4 19.3,8.4 19.3,-0.1 8.4,-0.1 0,-0.1 	"/>
+                            </g>
+                        </g>
+                        <g id="exit-fullscreen">
+                            <g>
+                                <polygon points="39,19.3 50,19.3 50,10.9 39,10.9 39,0 30.6,0 30.6,10.9 30.6,19.3 	"/>
+                            </g>
+                            <g>
+                                <polygon points="30.7,38.9 30.7,49.8 39.1,49.8 39.1,38.9 49.9,38.9 49.9,30.5 39.1,30.5 30.7,30.5 	"/>
+                            </g>
+                            <g>
+                                <polygon points="10.8,30.5 -0.1,30.5 -0.1,39 10.8,39 10.8,49.8 19.3,49.8 19.3,39 19.3,30.5 	"/>
+                            </g>
+                            <g>
+                                <polygon points="19.3,10.8 19.3,-0.1 10.9,-0.1 10.9,10.8 0,10.8 0,19.3 10.9,19.3 19.3,19.3 	"/>
+                            </g>
+                        </g>
+                    </svg>
+            </div>
+
+            <div class="banner-side-inner">
+                <div class="bnr-vert bnr-vert-1 banner-item"></div>
+                <div class="bnr-vert bnr-vert-2 banner-item"></div>
+                <div class="bnr-skyscraper banner-item"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script src="./config.js"></script>
+
+    <script>
+        
+        function Grid() {
+            this.cells = new Array(4);
+            this.activePlayers = new Array(4);
+            this.streams = {};
+            this.isDynamic = [true, true, true, true]    // If true, then that stream (index) is dynamic
+            this.rotationTimer = null;
+            this.streamIds = [];
+            this.activeStreams = new Array(4);
+            this.inactiveStreams = [];
+            this.timeoutDuration = 60000 * 3; // 3 minutes
+            this.isFirstTimeout = [true, true, true, true];
+            
+            this.updateStreams = function(newActiveStream, cellNumber) {
+                const oldActiveStream = this.activeStreams[cellNumber]; 
+                this.activeStreams[cellNumber] = newActiveStream;
+                const indexToBeRemoved = this.inactiveStreams.indexOf(newActiveStream);
+                this.inactiveStreams.splice(indexToBeRemoved, 1);
+                
+                if (oldActiveStream) {
+                    this.inactiveStreams.push(oldActiveStream);
+                }                
+                
+            }
+
+            this.sortStreams = () => {
+                this.inactiveStreams.sort((a,b) => {
+                    if (this.streams[a].title > this.streams[b].title) {
+                        return 1;
+                    } else { 
+                        return -1;
+                    }
+                })
+
+                
+            }
+            
+        }
+
+        function Cell() {
+            this.streamNum = null;  // Number between 0 and 3
+            this.currentId = null;  // Holds Id of current stream or video
+            this.isStream = true;   // True if is stream. False if is video
+            this.isStatic = false;  // If user has manually selected this stream, then will be true and not change.
+            this.player = null;
+            this.isBuffering = false;  
+            this.timer = null;
+
+            this.updateStream = function(newStreamID) {
+                this.currentId = newStreamID;
+            }
+        }
+
+        function Stream() {
+            this.id = null;
+            this.title = null;
+            this.isStream = null;
+        }
+
+    </script>
+
+    <script>
+
+
+        const BUFFER_TIMEOUT_DURATION = BIRDCAMS_CONFIG.BUFFER_TIMEOUT_DURATION;
+        const ROTATION_TIMEOUT_INTERVAL = BIRDCAMS_CONFIG.ROTATION_TIMEOUT_INTERVAL;
+        const NIGHTTIME_HOUR = BIRDCAMS_CONFIG.NIGHTTIME_HOUR;
+        const streams = BIRDCAMS_CONFIG.streams;
+
+        const container = document.getElementById('container');
+        const outerContainer = document.querySelector('.outer-frame-container');
+
+        const goFullscreenBtn = document.getElementById('go-fullscreen');
+        const exitFullscreenBtn = document.getElementById('exit-fullscreen');
+
+        const grid = new Grid();  
+
+        streams.forEach(function(el, i) {
+            grid.streams[el.id] = el;
+            grid.inactiveStreams.push(el.id);
+            grid.streamIds.push(el.id);
+        });
+
+        /* 
+            Called Automatically by YouTube API when API script has loaded. 
+            Kicks everything off.
+        */
+        function onYouTubeIframeAPIReady() {      
+
+            const players = document.querySelectorAll('.player');
+            const outerContainer = document.querySelector('.outer-frame-container');
+            const containerWidth = outerContainer.clientWidth;
+
+            // We want to go through each of these players (there should be 4)
+            // and for each
+
+            players.forEach(function(el, i) {
+
+                // Now we update the streams in the grid object 
+                // adding the new stream to activeStreams array and removing it from 
+                // inactivestreams array
+                let randomStream = getRandomStream();
+
+                grid.updateStreams(randomStream, i);
+                grid.sortStreams();
+
+                // Next we create the youtube player
+                const elementId = `player-${i+1}`;
+
+                const cell = new Cell();
+                cell.currentId = randomStream;
+                cell.streamNum = i;
+                grid.cells[i] = cell;
+
+                let player = new YT.Player(elementId, {
+                    videoId: randomStream,
+                    width: '100%',
+                    height: '100%',
+                    playerVars: {
+                        autoplay: 1,
+                        controls: 0,
+                        disablekb: 1,
+                        iv_load_policy: 3,
+                        modestbranding: 1,
+                        mute: 1,
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': function(event) {
+                            onStateChange(event,i);
+                        },
+                        'onError': errorHandler
+                    }
+                });
+
+                // Update the grid object with this new player
+                grid.activePlayers[i] = player;
+                grid.cells[i].player = player;
+
+            })   
+
+            setupDropdowns();
+            setupFullScreen();
+            setupMuteBtns();
+            updateFrameStyling();
+            setupResizeListener();
+            setupOverlayClickHandlers();
+        }
+
+        function isNighttime() {
+
+            let d = new Date();
+
+            if (d.getHours() >= NIGHTTIME_HOUR) { 
+                return true;
+            }
+            else { 
+                return false; 
+            }
+        }
+
+        function getRandomStream() {
+
+            let randomIndex = Math.floor(Math.random() * grid.inactiveStreams.length);
+            let randomStream = grid.inactiveStreams[randomIndex];
+            let isStream = grid.streams[randomStream].isStream;
+
+            if (isNighttime()) {
+                // We only want to chose pre-recorded videos (not live streams since it's dark)
+                worksAtNight = false;
+                while (!worksAtNight) {
+                    // keep looking for non stream that works at night
+                    randomIndex = Math.floor(Math.random() * grid.inactiveStreams.length);
+                    randomStream = grid.inactiveStreams[randomIndex];
+                    worksAtNight = grid.streams[randomStream].worksAtNight;
+                }
+
+            } else {
+                let isStream = false;
+                while (!isStream) {
+                    // We only want to randomly select live streams
+                    randomIndex = Math.floor(Math.random() * grid.inactiveStreams.length);
+                    randomStream = grid.inactiveStreams[randomIndex];
+                    isStream = grid.streams[randomStream].isStream;
+                }
+            }
+
+            return randomStream;
+        }
+
+        function errorHandler(event) {
+            console.log('Error occured', event);
+        }
+
+        function onPlayerReady(event) {
+            console.log('player ready');
+            event.target.playVideo();
+        }
+        
+        function onStateChange(event, i) {
+
+            if (event.data === YT.PlayerState.PLAYING) {
+                // From buffering to playing:
+                if (grid.cells[i].isBuffering) {
+
+                    grid.cells[i].isBuffering = false;
+                    console.log('clearing buffering timeout...');
+                    clearTimeout(grid.cells[i].timer);
+                }
+                
+                if (grid.isFirstTimeout[i]) {
+                    // Then we check if this is stream 1
+                    if (i === 0) {
+
+                        if (!isNighttime()) {
+                            grid.rotationTimer = setTimeout(function() {
+                                rotationTimeoutHandler(event.target, i);
+                            }, grid.timeoutDuration)
+                        }
+
+                    }
+
+                    grid.isFirstTimeout[i] = false;
+
+                } 
+                
+            } else if (event.data === YT.PlayerState.BUFFERING) {
+                // When state plays to buffering we want to start a timer
+            /*
+                if (!grid.cells[i].isBuffering) {
+                    // Cell is not currently buffering so we will set up the timeout
+                    grid.cells[i].timer = setTimeout(function() {
+                        bufferTimeout(event.target, i);
+                    }, BUFFER_TIMEOUT_DURATION);
+
+                    grid.cells[i].isBuffering = true;
+                } else {
+                    // Cell is currently buffering and so we already have a timeout set up
+                    console.log('cell is already buffering');
+                }
+            */
+            } else if (event.data === YT.PlayerState.ENDED) {
+                // Handles a prerecorded (non-stream) video that has ended
+                // by replaying the video.
+                // I need the id
+                console.log('player ended');
+                const id = grid.activeStreams[i];
+                console.log('id', id);
+                grid.activePlayers[i].seekTo(grid.streams[id].startTime);
+            }
+        }
+
+        function setupRotationTimeout(i) {
+
+            if (grid.rotationTimer) {
+                console.log('clearing rotationTimer');
+                clearTimeout(grid.rotationTimer);
+            }
+            
+            let nextStreamIndex= getNextDynamicStream(i);
+            // We now have the next stream index for which we want to set up a timer
+            // Since changeVideo also takes the player itself though, we need to get that.
+            let nextPlayer = grid.activePlayers[nextStreamIndex];
+            
+            grid.rotationTimer = setTimeout(function() {
+                rotationTimeoutHandler(nextPlayer, nextStreamIndex);
+            }, ROTATION_TIMEOUT_INTERVAL);
+
+            console.log('setupRotationTimeout has been called for stream', nextStreamIndex);
+        }
+
+        function getNextDynamicStream(i) {
+            
+            let nextIndex = i+1;
+
+            if (nextIndex >= grid.isDynamic.length) {
+                nextIndex = 0;
+            }
+            
+
+            while (!grid.isDynamic[nextIndex]) {
+
+                nextIndex++;
+
+                if (nextIndex >= grid.isDynamic.length) {
+                    nextIndex = 0;
+                }
+                
+            }
+
+            return nextIndex;
+        }
+
+        function bufferTimeout(player, i) {
+
+            if (grid.cells[i].isBuffering) {
+                console.log(`Video has been buffering for more than ${BUFFER_TIMEOUT_DURATION} ms! Getting new video`);
+                changeVideo(player, i);
+                grid.cells[i].isBuffering = false;
+            } else {
+                // This shouldn't run. If it does there was a leak and a timeout that should've
+                // been clear was not.
+                console.log('Uh Oh. Timeout triggered but flag is set to false...Theres a leak somewhere');
+            }
+        }
+
+        function rotationTimeoutHandler(player, i) {
+            changeVideo(player, i);
+            setupRotationTimeout(i);
+        }
+
+        function changeVideo(player, i, newStream) {
+            
+            console.log('rotation timeout finished!');
+            
+            const newActiveStream = newStream || getRandomStream();
+
+            grid.updateStreams(newActiveStream, i);
+            grid.cells[i].updateStream(newActiveStream);
+
+            player.loadVideoById( newActiveStream );
+
+            updateDropdownItems();
+
+        }
+        function setupDropdowns() {   
+
+            const dropdowns = document.querySelectorAll('.dropdown');
+            const dropdownContent = document.querySelectorAll('.dropdown-content');
+
+            dropdowns.forEach(function(el,i) {
+                // For each drop down we want to set an event listener
+                el.addEventListener('click', function() {
+                    dropdownBtnHandler(i);
+                })
+
+                el.addEventListener('mouseleave', function(e) {
+                    // close dropdown
+                    console.log('leaving');
+                    dropdownContent[i].classList.remove('active');
+
+                })
+            })
+
+            updateDropdownItems();
+
+            dropdownContent.forEach(function(dropdown,i) {
+
+                dropdown.addEventListener('click', function(e) {
+                        dropdownItemHandler(e,i);
+                    });
+            });
+
+
+
+            }
+
+        function updateDropdownItems() {
+
+            const dropdownContent = document.querySelectorAll('.dropdown-content');
+
+            dropdownContent.forEach(function(dropdown,i) {
+
+                while (dropdown.hasChildNodes()) {   
+                    dropdown.removeChild(dropdown.firstChild);
+                }
+
+                // For each dropdown. we need to go through all the inactive streams and create an element for that stream
+                grid.inactiveStreams.forEach(function(stream,i) {
+                    const element = document.createElement('div');
+                    const textContent = document.createTextNode(grid.streams[stream].title); 
+                    element.classList.add('dropdown-item');
+                    element.setAttribute('data-id', stream);
+                    if (grid.streams[stream].isStream) {
+                        element.classList.add('live-stream');
+                    }
+                    element.appendChild(textContent);
+                    dropdown.appendChild(element);
+                })
+
+            })
+        }
+
+
+        function dropdownBtnHandler(i) {
+            // We want to toggle the dropdown content's class to show or hide it
+            const dropdown = document.getElementById(`dropdown-content-${i+1}`);
+            
+            if (dropdown.className.indexOf('active') >= 0) {
+                dropdown.classList.remove('active');
+            } else {
+                dropdown.classList.add('active');
+            }
+
+        }
+        
+        function dropdownItemHandler(e,i) {
+            const id = e.target.getAttribute('data-id');
+
+            // Before updating the video, we want to make this video
+            // static (not dynamic)
+            grid.isDynamic[i] = false;
+            changeVideo(grid.activePlayers[i], i, id);
+            
+            // So once this is clicked we want to update the video
+            updateDropdownItems();
+        }
+
+        function setupFullScreen() {
+            const fsBtn = document.getElementById('fullscreen-icon');
+            fsBtn.addEventListener('click', function() {
+                handleFullScreen();
+            });
+
+            // We also want to add an event listener so if the uesr 
+            // goes or exits full screen some other way
+            // we still update the grid.isFullscreen flag and the icons
+            document.addEventListener('fullscreenchange', function(e) {
+                console.log('got it');
+            })
+        }
+        
+        function handleFullScreen() {
+
+            console.log('handleFullScreen', grid.inFullScreen);
+            
+            if (!grid.inFullScreen) {
+                // We are not in fullscreen mode yet so we want to go full screen
+                // and we also want to toggle the goFullscreen btn to inactive 
+                // and the exitFullscreen btn to inactive
+                goFullscreenBtn.classList.remove('active');
+                exitFullscreenBtn.classList.add('active');
+
+                if (container.requestFullscreen) {
+                    grid.inFullScreen = true;
+                    container.requestFullscreen();
+                } else if (container.mozRequestFullScreen) { /* Firefox */
+                    grid.inFullScreen = true;
+                    container.mozRequestFullScreen();
+                } else if (container.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                    grid.inFullScreen = true;
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) { /* IE/Edge */
+                    grid.inFullScreen = true;
+                    container.msRequestFullscreen();
+                }
+            } else {
+                // We are already in full screen and want to exit
+                exitFullscreenBtn.classList.remove('active');
+                goFullscreenBtn.classList.add('active');
+
+                if (document.exitFullscreen) {
+                    grid.inFullScreen = false;
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    grid.inFullScreen = false;
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    grid.inFullScreen = false;
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    grid.inFullScreen = false;
+                    document.msExitFullscreen();
+                }
+            }
+
+            
+        }
+
+        function setupMuteBtns() {
+            const muteBtns = document.querySelectorAll('.mute-btn');
+            muteBtns.forEach(function(el, i) {
+                el.addEventListener('click', function() {
+                    handleMuteClick(el, i);
+                });
+            })
+            
+        }
+
+        function handleMuteClick(element, i) {
+            // We want to either mute or unmute the player
+            // and then toggle the .mute-btn-active class
+            if (grid.activePlayers[i].isMuted()) {
+                // We want to unmute and 
+                grid.activePlayers[i].unMute();
+                // and toggle the class
+                element.classList.add('mute-btn-active');
+
+            } else {
+                // We want to mute it
+                grid.activePlayers[i].mute();
+                element.classList.remove('mute-btn-active');
+            }
+            
+        }
+
+        function updateFrameStyling() {
+
+            // Check if aspect ratio is > or < 16:9
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const aspectRatio = (width-100) / (height-100);
+
+            const sixteenByNine = 16 / 9;
+
+            let containerWidth = null;
+            let containerHeight = null;
+
+            if (aspectRatio > sixteenByNine) {
+                console.log('aspect ratio > 16:9');
+                // calculate the height first
+                containerHeight = height - 100;
+                containerWidth = containerHeight * sixteenByNine;
+            } else {
+                console.log('aspect ratio < 16:9');
+                containerWidth = width - 100;
+                containerHeight = containerWidth / sixteenByNine;
+            }
+
+            // Now that we have the width and height we need to actually apply them
+
+            outerContainer.style.width = `${containerWidth}px`;
+            outerContainer.style.height = `${containerHeight}px`;
+
+            // Check if grid.inFullScreen flag is still true while 
+            // window dimensions tell us we aren't 
+            if (grid.inFullScreen && window.outerHeight != screen.height) {
+                // If this is the case, it means we have exited fullscreen
+                // via the escape key and so we need to call the handleFullScreen
+                // function which wouldn't otherwise be called
+                handleFullScreen();
+            }
+        }
+
+        function setupResizeListener() {
+
+            timeout = false, // holder for timeout id
+            delay = 250, // delay after event is "complete" to run callback
+            calls = 0;
+
+            window.addEventListener('resize', function() {
+                // clear the timeout
+                clearTimeout(timeout);
+                // start timing for event "completion"
+                timeout = setTimeout(updateFrameStyling, delay);
+            });
+        }
+
+        function setupOverlayClickHandlers() {
+            // Go through each overlay and add a click handler 
+            const overlays = document.querySelectorAll('.overlay');
+
+            overlays.forEach(function(el,i) {
+                el.addEventListener('click', function(e) {
+                    handleOverlayClick(e,i);
+                });
+            })
+        }
+
+        function handleOverlayClick(e,i) {
+            const id = grid.cells[i].currentId;
+            
+            const url = "http://www.chirpforbirds.com/birdcams/single-cam.html?id=" + id;
+            
+            window.open(url, '_blank')
+
+            // Now we need a page setup at this location. We could obviously just have a 
+            // single.html file inside of our birdcams directory, similar to how we have 
+            // this page as the index.html file in the folder. However, it might be better to
+            // use the traditional wordpress type setup wherein we create a new wordpress page
+            // which uses a custom template.
+
+        }
+    </script>
+</body>
+</html>
