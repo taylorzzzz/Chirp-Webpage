@@ -1,3 +1,6 @@
+wp-admin/error_log
+wp-content/backupwordpress*
+
 *.log
 wp-config.php
 wp-content/advanced-cache.php
