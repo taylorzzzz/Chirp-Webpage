@@ -1,5 +1,4 @@
 <?php get_header(); ?>
-
 <div id="main" class="main">
 	<div class="container">
 		<section id="content" class="content">
@@ -9,9 +8,9 @@
 				while ( have_posts() ) :
 					the_post();
 				?>
-							<?php get_template_part( 'template-parts/element', 'blog' ); ?>
-			<?php cpotheme_author(); ?>
-			<?php comments_template( '', true ); ?>
+				<?php get_template_part( 'template-parts/element', 'blog' ); ?>
+				<?php cpotheme_author(); ?>
+				<?php comments_template( '', true ); ?>
 			<?php
 			endwhile;
 			};

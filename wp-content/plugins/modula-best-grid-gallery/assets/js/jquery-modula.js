@@ -1,274 +1,9 @@
-// Place any jQuery/helper plugins in here.
-
-/**
- * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
- * directory of this distribution and at
- * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
- */
-(function (root, factory) {
-    if (typeof define === "function" && define.amd) {
-        define(factory);
-    } else if (typeof exports === "object") {
-        module.exports = factory();
-    } else {
-        root.ResizeSensor = factory();
-    }
-}(typeof window !== 'undefined' ? window : this, function () {
-
-    // Make sure it does not throw in a SSR (Server Side Rendering) situation
-    if (typeof window === "undefined") {
-        return null;
-    }
-    // Only used for the dirty checking, so the event callback count is limited to max 1 call per fps per sensor.
-    // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
-    // would generate too many unnecessary events.
-    var requestAnimationFrame = window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        function (fn) {
-            return window.setTimeout(fn, 20);
-        };
-
-    /**
-     * Iterate over each of the provided element(s).
-     *
-     * @param {HTMLElement|HTMLElement[]} elements
-     * @param {Function}                  callback
-     */
-    function forEachElement(elements, callback){
-        var elementsType = Object.prototype.toString.call(elements);
-        var isCollectionTyped = ('[object Array]' === elementsType
-            || ('[object NodeList]' === elementsType)
-            || ('[object HTMLCollection]' === elementsType)
-            || ('[object Object]' === elementsType)
-            || ('undefined' !== typeof jQuery && elements instanceof jQuery) //jquery
-            || ('undefined' !== typeof Elements && elements instanceof Elements) //mootools
-        );
-        var i = 0, j = elements.length;
-        if (isCollectionTyped) {
-            for (; i < j; i++) {
-                callback(elements[i]);
-            }
-        } else {
-            callback(elements);
-        }
-    }
-
-    /**
-    * Get element size
-    * @param {HTMLElement} element
-    * @returns {Object} {width, height}
-    */
-    function getElementSize(element) {
-        if (!element.getBoundingClientRect) {
-            return {
-                width: element.offsetWidth,
-                height: element.offsetHeight
-            }
-        }
-
-        var rect = element.getBoundingClientRect();
-        return {
-            width: Math.round(rect.width),
-            height: Math.round(rect.height)
-        }
-    }
-
-    /**
-     * Class for dimension change detection.
-     *
-     * @param {Element|Element[]|Elements|jQuery} element
-     * @param {Function} callback
-     *
-     * @constructor
-     */
-    var ResizeSensor = function(element, callback) {
-        /**
-         *
-         * @constructor
-         */
-        function EventQueue() {
-            var q = [];
-            this.add = function(ev) {
-                q.push(ev);
-            };
-
-            var i, j;
-            this.call = function() {
-                for (i = 0, j = q.length; i < j; i++) {
-                    q[i].call();
-                }
-            };
-
-            this.remove = function(ev) {
-                var newQueue = [];
-                for(i = 0, j = q.length; i < j; i++) {
-                    if(q[i] !== ev) newQueue.push(q[i]);
-                }
-                q = newQueue;
-            };
-
-            this.length = function() {
-                return q.length;
-            }
-        }
-
-        /**
-         *
-         * @param {HTMLElement} element
-         * @param {Function}    resized
-         */
-        function attachResizeEvent(element, resized) {
-            if (!element) return;
-            if (element.resizedAttached) {
-                element.resizedAttached.add(resized);
-                return;
-            }
-
-            element.resizedAttached = new EventQueue();
-            element.resizedAttached.add(resized);
-
-            element.resizeSensor = document.createElement('div');
-            element.resizeSensor.dir = 'ltr';
-            element.resizeSensor.className = 'resize-sensor';
-            var style = 'position: absolute; left: -10px; top: -10px; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;';
-            var styleChild = 'position: absolute; left: 0; top: 0; transition: 0s;';
-
-            element.resizeSensor.style.cssText = style;
-            element.resizeSensor.innerHTML =
-                '<div class="resize-sensor-expand" style="' + style + '">' +
-                    '<div style="' + styleChild + '"></div>' +
-                '</div>' +
-                '<div class="resize-sensor-shrink" style="' + style + '">' +
-                    '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' +
-                '</div>';
-            element.appendChild(element.resizeSensor);
-
-            var position = window.getComputedStyle(element).getPropertyPriority('position');
-            if ('absolute' !== position && 'relative' !== position && 'fixed' !== position) {
-                element.style.position = 'relative';
-            }
-
-            var expand = element.resizeSensor.childNodes[0];
-            var expandChild = expand.childNodes[0];
-            var shrink = element.resizeSensor.childNodes[1];
-            var dirty, rafId, newWidth, newHeight;
-            var size = getElementSize(element);
-            var lastWidth = size.width;
-            var lastHeight = size.height;
-
-            var reset = function() {
-                //set display to block, necessary otherwise hidden elements won't ever work
-                var invisible = element.offsetWidth === 0 && element.offsetHeight === 0;
-
-                if (invisible) {
-                    var saveDisplay = element.style.display;
-                    element.style.display = 'block';
-                }
-
-                expandChild.style.width = '100000px';
-                expandChild.style.height = '100000px';
-
-                expand.scrollLeft = 100000;
-                expand.scrollTop = 100000;
-
-                shrink.scrollLeft = 100000;
-                shrink.scrollTop = 100000;
-
-                if (invisible) {
-                    element.style.display = saveDisplay;
-                }
-            };
-            element.resizeSensor.resetSensor = reset;
-
-            var onResized = function() {
-                rafId = 0;
-
-                if (!dirty) return;
-
-                lastWidth = newWidth;
-                lastHeight = newHeight;
-
-                if (element.resizedAttached) {
-                    element.resizedAttached.call();
-                }
-            };
-
-            var onScroll = function() {
-                var size = getElementSize(element);
-                var newWidth = size.width;
-                var newHeight = size.height;
-                dirty = newWidth != lastWidth || newHeight != lastHeight;
-
-                if (dirty && !rafId) {
-                    rafId = requestAnimationFrame(onResized);
-                }
-
-                reset();
-            };
-
-            var addEvent = function(el, name, cb) {
-                if (el.attachEvent) {
-                    el.attachEvent('on' + name, cb);
-                } else {
-                    el.addEventListener(name, cb);
-                }
-            };
-
-            addEvent(expand, 'scroll', onScroll);
-            addEvent(shrink, 'scroll', onScroll);
-            
-            // Fix for custom Elements
-            requestAnimationFrame(reset);
-        }
-
-        forEachElement(element, function(elem){
-            attachResizeEvent(elem, callback);
-        });
-
-        this.detach = function(ev) {
-            ResizeSensor.detach(element, ev);
-        };
-
-        this.reset = function() {
-            element.resizeSensor.resetSensor();
-        };
-    };
-
-    ResizeSensor.reset = function(element, ev) {
-        forEachElement(element, function(elem){
-            elem.resizeSensor.resetSensor();
-        });
-    };
-
-    ResizeSensor.detach = function(element, ev) {
-        forEachElement(element, function(elem){
-            if (!elem) return;
-            if(elem.resizedAttached && typeof ev === "function"){
-                elem.resizedAttached.remove(ev);
-                if(elem.resizedAttached.length()) return;
-            }
-            if (elem.resizeSensor) {
-                if (elem.contains(elem.resizeSensor)) {
-                    elem.removeChild(elem.resizeSensor);
-                }
-                delete elem.resizeSensor;
-                delete elem.resizedAttached;
-            }
-        });
-    };
-
-    return ResizeSensor;
-
-}));
-
 /*
  *  Project: jQuery Modula 2
  *  Version: 1.0
  *  Description: Artistic gallery
  *  Author: Macho Themes
  */
-
 function tg_getURLParameter(name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
 }
@@ -296,6 +31,7 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
             enableFacebook: false,
             enableGplus: false,
             enablePinterest: false,
+            enableLinkedin: false,
             lazyLoad: 0,
         };
 
@@ -303,8 +39,8 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
     function Plugin( element, options ) {
         this.element = element;
         this.$element = $(element);
-        this.$itemsCnt = this.$element.find(".items");
-        this.$items = this.$itemsCnt.find(".item");
+        this.$itemsCnt = this.$element.find(".modula-items");
+        this.$items = this.$itemsCnt.find(".modula-item");
 
         this.options = $.extend({}, defaults, options);
 
@@ -354,9 +90,9 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
         }
 
         if ( this.options.gutter > 0 ) {
-            size = plugin.trunc( ( containerWidth - this.options.gutter * columns ) / columns );
+            size = ( containerWidth - this.options.gutter * ( columns - 1 ) ) / columns;
         }else{
-            size = plugin.trunc( containerWidth / columns );
+            size = Math.floor( containerWidth / columns );
         }
 
     	this.$items.not(".jtg-hidden").each(function (i, item) {
@@ -380,12 +116,10 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
 
                 }else{
 
-                    // widthColumns = Math.trunc( columns * auxWidth / 12 );
                     widthColumns = Math.round( columns * auxWidth / 12 );
                     if ( widthColumns < 1 ) { widthColumns = 1; }
 
                     heightColumns = Math.round( widthColumns * auxHeight / auxWidth );
-                    // heightColumns = widthColumns * auxHeight / auxWidth;
                     if ( heightColumns < 1 ) { heightColumns = 1; }
 
                 }
@@ -393,7 +127,7 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
             }
 
             slot.width = size * widthColumns + ( plugin.options.gutter * ( widthColumns - 1 ) );
-            slot.height = size * heightColumns + ( plugin.options.gutter * ( heightColumns - 1 ) );
+            slot.height = Math.round( size ) * heightColumns + ( plugin.options.gutter * ( heightColumns - 1 ) );
 
             $(item)
 		   		.data('size', slot)
@@ -414,7 +148,7 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
     	}
 
         this.$itemsCnt.packery({
-        	itemSelector: '.item',
+        	itemSelector: '.modula-item',
             gutter: parseInt( plugin.options.gutter ),
             columnWidth: size,
             // rowHeight: size,
@@ -546,8 +280,8 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
         if ( 'custom-grid' === instance.options.type ) {
         	instance.createCustomGallery();
             instance.$itemsCnt.packery();
-        }else{
-        	instance.createGrid();
+        }else if( 'creative-gallery' == this.options.type ){
+            instance.createGrid();
         }
 
         instance.$itemsCnt.find('.pic').each(function (i, o) {
@@ -581,6 +315,15 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
         var tSize = $tile.data('size');
         var iSize = $image.data('size');
 
+        if ( $image.parent() != $tile ) {
+            tSize = {
+                'width' : $image.parent().width(),
+                'height' : $image.parent().height()
+            };
+        }
+
+        if ( typeof tSize == 'undefined' ) { return; }
+        if ( typeof iSize == 'undefined' ) { return; }
 
         var tRatio = tSize.width / tSize.height;
         var iRatio = iSize.width / iSize.height;
@@ -668,7 +411,8 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
 
         this.$itemsCnt.css({
             position: 'relative',
-            zIndex: 1
+            zIndex: 1,
+            'min-height': '10px'
         });
         
         this.$items.addClass("tile");
@@ -676,7 +420,7 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
 
         if ( 'custom-grid' === this.options.type ) {
         	this.createCustomGallery();
-        }else{
+        }else if( 'creative-gallery' == this.options.type ){
         	this.createGrid();
         }
 
@@ -699,7 +443,7 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
 
             if ( 'modula' == element.data( 'source' ) ) {
                 element.data('size', { width: element.width(), height: element.height() });
-                parent = element.parents( '.item' );
+                parent = element.parents( '.modula-item' );
                 parent.addClass( 'tg-loaded' );
                 index = instance.$items.index( parent );
                 instance.placeImage(index);
@@ -725,14 +469,27 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
     };
 
     Plugin.prototype.setupSocial = function () {
-        if (this.options.enableTwitter)
+        if (this.options.enableTwitter){
             setupTwitter(this.$items, this);
-        if (this.options.enableFacebook)
+        }
+        if (this.options.enableFacebook){
             setupFacebook(this.$items, this);
-        if (this.options.enableGplus)
-            setupGplus(this.$items, this);
-        if (this.options.enablePinterest)
+        }
+        if (this.options.enablePinterest){
             setupPinterest(this.$items, this);
+        }
+        if (this.options.enableLinkedin){
+            setupLinkedIN(this.$items, this);
+        }
+    }
+
+    Plugin.prototype.destroy = function () {
+
+        if ( this.isPackeryActive ) {
+            this.$itemsCnt.packery( 'destroy' );
+            this.isPackeryActive = false;
+        }
+
     }
 
     //credits James Padolsey http://james.padolsey.com/
@@ -801,11 +558,11 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
         });
     }
 
-    var setupGplus = function ($tiles, plugin) {
-        $tiles.find(".modula-icon-google-plus").click(function (e) {
+    var setupLinkedIN = function ($tiles, plugin) {
+        $tiles.find(".modula-icon-linkedin").click(function (e) {
             e.preventDefault();
 
-            var url = "https://plus.google.com/share?url=" + encodeURI(location.href);
+            var url = "//linkedin.com/shareArticle?mini=true&url=" +  + encodeURI(location.href);
 
             var w = window.open(url, "ftgw", "location=1,status=1,scrollbars=1,width=600,height=400");
             w.moveTo((screen.width / 2) - (300), (screen.height / 2) - (200));
@@ -818,7 +575,6 @@ jQuery(document).on( 'vc-full-width-row-single vc-full-width-row', function( eve
 
         if (options === undefined || typeof options === 'object') {
             return this.each(function () {
-
                 if (!$.data(this, 'plugin_' + pluginName)) {
                     $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
                 }

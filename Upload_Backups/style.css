@@ -1,0 +1,373 @@
+/*
+ Theme Name:   Allegiant Pro Child for Chirp
+ Description:  Allegiant Pro Child Theme for Chirp
+ Author:       Randall et al
+ Author URI:   http://goboinfo.com
+ Template:     allegiant_pro
+ Version:      1.0.0
+ Text Domain:  cpotheme-child-chirp
+*/
+
+/* ----------------------------- GENERAL */
+.hide-me {
+    display: none;
+}
+.main-clear {
+    background: transparent;
+}
+.section-incr-padding {
+    padding: 50px 0;
+}
+li.list-item {
+    padding: 10px 0;
+}
+.list-item-header {
+    font-weight: bolder;
+}
+.list-item-description {
+    display: inline;
+}/* ----------------------------- HOMEPAGE */
+/* Hide Pagination under blog posts */
+.home #main .pagination {
+    display: none;
+}
+/* Link to Buletins */
+.home #main .link-to-bulletins {
+    text-align: center;
+    margin-bottom: 20px;    
+}
+/* Tagline */
+.or-divider {
+    margin: 0px 20px;
+}
+@media screen and (max-width: 600px) {
+    .button.tagline-link {
+        display: block;
+        margin: auto;
+        max-width: 200px;
+    }
+    .or-divider {
+        display: block;
+        margin: 20px 0px;
+    }
+}
+
+
+/* ----------------------------- TOPBAR */
+#topbar-phone {
+    float: right;
+    padding-left: 24px;
+}
+@media screen and (max-width: 391px) {
+    #topbar-phone {
+        display: none;
+    }
+}
+#topbar-phone::before {
+    font-family: 'fontawesome';
+    content: '\f095';
+    margin-right: 10px;
+}
+#topbar-search {
+    float: right;
+}
+#topbar-search .widget_search {
+    margin: 0;
+}
+#topbar-search input[type=text] {
+    padding: 2px 10px;
+    background: none;
+}
+#topbar-search-submit {
+    border: solid;
+}
+
+/* ----------------------------- HEADER STYLES */
+.pagetitle {
+    padding: 50px 0;
+}
+
+/* ----------------------------- SIGNUP POST */
+.signup-address {
+    border: 1px solid; 
+    border-radius: 5px; 
+    padding: 10px; 
+    border-color: #ddd;
+    margin-bottom: 1.6em;
+}
+.signup-address-label {
+    margin: 0px;
+}
+/* ----------------------------- ABOUT US PAGE */
+.about-section-no-border {
+    border-top: none;
+}
+.about-tagline-content {
+    color: #9999aa;
+    opacity: 0.6;
+    font-size: 1.6em;
+}
+.about-tagline-title {
+    color: #556677;
+    font-size: 2.5em;    
+}
+.about-tagline {
+    background: #FFF;
+    padding: 100px 0;
+}
+.about-added-padding {
+    padding: 50px 0;
+}
+#about-slider-slides {
+    height: 300px;
+}
+/* CLEAR BACKGROUND FEATURES */
+.about-features-clear {
+    background: rgba(0,0,0,.4);
+    color: #ddd;
+}
+.about-features-clear .features-title {
+    color: #eee;
+}
+.about-features-clear .features-subtitle {
+    color: #ddd;
+    opacity: 1;
+}
+/* CLEAR BACKGROUND FEATURES */
+.about-clear  {
+    background: rgba(0,0,0,.4);
+    color: #ddd;
+    padding: 90px 0px;
+}
+.about-clear .about-tagline-title {
+    color: #EEE;
+}
+.about-clear .about-tagline-content {
+    color: #DDD;
+    opacity: 1;
+}
+.newsletter.about-clear {
+    position: relative;
+    padding: 90px 0px 0px;
+}
+.newsletter::before {
+    content: ' ';
+    position: absolute;
+    background: #bbb;
+    top: 0;
+    left: 50%;
+    margin-left: -25%;
+    width: 50%;
+    height: 1px;
+}
+.tagline-body .mc4wp-form {
+    padding-top: 1.6em;
+    margin: auto;
+    max-width: 500px;
+}
+
+/* CLEAR BACKGROUND FEATURES */
+.about-features-clear {
+    background: rgba(0,0,0,.4);
+}
+.about-features-clear .features-title {
+    color: #eee;
+}
+.about-features-clear .features-subtitle {
+    color: #ddd;
+    opacity: 1;
+}
+.about-features-clear .feature-title {
+    color: #eee;
+}
+.about-features-clear .feature-content {
+    color: #ccc;
+}
+
+/* ----------------------------- ICON */
+.features .feature .feature-icon {
+    font-size: 50px;
+}
+
+.icon-happy::before {
+    content: '\f118';
+    font-family: 'fontawesome';
+}
+.icon-give::before {
+    content: '\f004';
+    font-family: 'fontawesome';
+}
+.icon-rest::before {
+    content: '\f06c';
+    font-family: 'fontawesome';
+}
+
+/* ----------------------------- FOOTER */
+#subfooter #newsletter-options {
+    display: none;
+}
+#newsletter-options label {
+    display: block;
+}
+#newsletter-options #subscribe-label {
+    margin-left: -61px;
+}
+#footer-faq {
+    margin-top: 1.5em;
+}
+.footer-copyright, .footer-privacy {
+    display: inline-block;
+    margin: 0px 15px;
+}
+.footer-content a:link.footer-privacy {
+    cursor: pointer;
+    color: #eee;
+}
+@media only screen and (max-width: 600px) {
+    .footer-privacy {
+        display: block;
+        transform: translate(0px, 0px);
+        margin-left: 0;
+    }
+}
+
+/* ----------------------------- BREADCRUMBS */
+.woocommerce-breadcrumb {
+    display: none;
+}
+.woocommerce-page .woocommerce-breadcrumb {
+    display: block;
+    background: #f0f0f0;
+    padding: 6px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* ----------------------------- WOOCOMMERCE */
+/* Product Page */
+.obfuscated-sku {
+    color: transparent;
+    display: block;
+}
+.posted_in-block,
+.tagged_as-block {
+    display: block;
+}
+p.price-big .woocommerce-Price-amount {
+    font-size: 1.75em;
+}
+p.price {
+    line-height: 1em;
+    margin-bottom: 20px;
+}
+.woocommerce div.product form.cart {
+    margin-bottom: 20px;
+}
+@media screen and (min-width: 900px) {
+    .woocommerce #content div.product .woocommerce-tabs, .woocommerce div.product .woocommerce-tabs, .woocommerce-page #content div.product .woocommerce-tabs, .woocommerce-page div.product .woocommerce-tabs {
+        width: 48%;
+        float: right;
+        clear: none;
+        margin-bottom: 2em;
+    }
+    .related-products-incr-margin {
+        clear: both;
+    }
+}
+.related-products-incr-margin {
+    margin-top: 5em;
+}
+/* Product Archive*/
+.woocommerce-loop-category__title {
+    text-align: center;
+}
+
+/* ----------------------------- WOOCOMMERCE - SIDEBAR */
+.sidebar {
+    width: 25%;
+}
+.sidebar .widget {
+    margin: 0px 0px 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+.sidebar .widget:first-child {
+    padding-bottom: 20px;
+}
+.sidebar .widget:last-child {
+    border-bottom: none;
+}
+.current-cat > a{
+    font-weight: 900;
+}
+.widget_price_filter .widget-title {
+    font-size: 1em;
+    font-family: 'Source Sans Pro';
+    font-weight: 400;
+    color: #9999aa;
+}
+.woocommerce .widget_price_filter .price_slider_amount .button {
+    font-size: 1em;
+}
+
+
+/* ----------------------------- SEED CLUB FORM */
+
+#wpcf7-f1308-p1317-o1 p,
+#wpcf7-f1308-p1317-o1 label,
+#wpcf7-f1308-p1317-o1 .signup-address-label {
+    font-size: 24px;
+}
+
+/* ----------------------------- BIRDCAM STREAM POSTS */
+
+.single-chirp_birdcam_stream #pagetitle {
+    display: none;
+}
+.single-chirp_birdcam_stream iframe {
+    height: 100%;
+    width: 100%;
+}
+
+/* Logged in */
+.admin-bar.single-chirp_birdcam_stream .page-content {
+    height: calc(100vh - 149.25px);
+}
+/* Not logged in */
+.single-chirp_birdcam_stream .page-content {
+    height: calc(100vh - 117.25px);
+}
+
+@media screen and (max-width: 782px) {
+    /* Logged In */
+    .admin-bar.single-chirp_birdcam_stream .page-content {
+        height: calc(100vh - 163.25px);
+    }
+}
+@media screen and (max-width: 541px) {
+    /* Logged In */
+    .admin-bar.single-chirp_birdcam_stream .page-content {
+        height: calc(100vh - 197.25px);
+    }
+    /* Not Logged In */
+    .single-chirp_birdcam_stream .page-content {
+        height: calc(100vh - 151.25px);
+    }
+}
+/* ----------------------------- BIRDCAM STREAM ARCHIVE */
+.content-full .main.streams-archive{
+    padding: 30px 0 10px;
+}
+.content-full .main.streams-archive > .container {
+    padding: 0 20px
+}
+.content-full .main.streams-archive > .container .column,
+.main.streams-archive > .container .column {
+    padding: 10px;
+    box-sizing: border-box;
+}
+/* ----------------------------- BIRDCAM STREAM POST META BOX */
+#stream-id-label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bolder;
+}

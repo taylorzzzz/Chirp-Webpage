@@ -21,17 +21,20 @@ class Modula_Shortcode {
 		add_filter( 'modula_shortcode_item_data', 'modula_check_hover_effect', 20, 3 );
 		add_filter( 'modula_shortcode_item_data', 'modula_check_custom_grid', 25, 3 );
 		add_filter( 'modula_shortcode_item_data', 'modula_enable_lazy_load', 30, 3 );
+		add_filter( 'modula_gallery_template_data', 'modula_add_align_classes', 99 );
+		add_action( 'modula_shortcode_after_items', 'modula_show_schemaorg', 90 );
+
 	}
 
 	public function add_gallery_scripts() {
 
 		wp_register_style( 'lightbox2_stylesheet', MODULA_URL . 'assets/css/lightbox.min.css', null, MODULA_LITE_VERSION );
-		wp_register_style( 'modula', MODULA_URL . 'assets/css/modula.css', null, MODULA_LITE_VERSION );
+		wp_register_style( 'modula', MODULA_URL . 'assets/css/modula.min.css', null, MODULA_LITE_VERSION );
 
 		// Scripts necessary for some galleries
-		wp_register_script( 'lightbox2_script', MODULA_URL . 'assets/js/lightbox.min.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
-		wp_register_script( 'packery', MODULA_URL . 'assets/js/packery.min.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
-		wp_register_script( 'lazysizes', MODULA_URL . 'assets/js/lazysizes.min.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
+		wp_register_script( 'lightbox2_script', MODULA_URL . 'assets/js/lightbox.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
+		wp_register_script( 'packery', MODULA_URL . 'assets/js/packery.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
+		wp_register_script( 'modula-lazysizes', MODULA_URL . 'assets/js/lazysizes.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
 
 		// @todo: minify all css & js for a better optimization.
 		wp_register_script( 'modula', MODULA_URL . 'assets/js/jquery-modula.min.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
@@ -51,8 +54,7 @@ class Modula_Shortcode {
 		}
 
 		/* Generate uniq id for this gallery */
-		$rid = rand( 1, 1000 );
-		$gallery_id = 'jtg-' . $atts['id'] . '-' . $rid;
+		$gallery_id = 'jtg-' . $atts['id'];
 
 		// Check if is an old Modula post or new.
 		$gallery = get_post( $atts['id'] );
@@ -79,7 +81,7 @@ class Modula_Shortcode {
 
 		/* Get gallery settings */
 		$settings = get_post_meta( $atts['id'], 'modula-settings', true );
-		$default = Modula_CPT_Fields_Helper::get_defaults();
+		$default  = Modula_CPT_Fields_Helper::get_defaults();
 		$settings = wp_parse_args( $settings, $default );
 
 		$type = 'creative-gallery';
@@ -87,6 +89,16 @@ class Modula_Shortcode {
 			$type = $settings['type'];
 		}else{
 			$settings['type'] = 'creative-gallery';
+		}
+		
+		$pre_gallery_html = apply_filters( 'modula_pre_output_filter_check', false, $settings, $gallery );
+
+		if ( false !== $pre_gallery_html ) {
+
+			// If there is HTML, then we stop trying to display the gallery and return THAT HTML.
+			$pre_output =  apply_filters( 'modula_pre_output_filter','', $settings, $gallery );
+			return $pre_output;
+
 		}
 
 		/* Get gallery images */
@@ -105,7 +117,7 @@ class Modula_Shortcode {
 		}
 
 		if ( '1' == $settings['lazy_load'] ) {
-			wp_enqueue_script( 'lazysizes' );
+			wp_enqueue_script( 'modula-lazysizes' );
 		}
 
 		/* Enqueue lightbox related scripts & styles */
@@ -120,9 +132,11 @@ class Modula_Shortcode {
 				break;
 		}
 
+		do_action('modula_extra_scripts',$settings);
+
 		// Main CSS & JS
-		$necessary_scripts = apply_filters( 'modula_necessary_scripts', array( 'modula' ) );
-		$necessary_styles  = apply_filters( 'modula_necessary_styles', array( 'modula' ) );
+		$necessary_scripts = apply_filters( 'modula_necessary_scripts', array( 'modula' ),$settings );
+		$necessary_styles  = apply_filters( 'modula_necessary_styles', array( 'modula' ), $settings );
 
 		if ( ! empty( $necessary_scripts ) ) {
 			foreach ( $necessary_scripts as $script ) {
@@ -144,17 +158,28 @@ class Modula_Shortcode {
 			'settings'   => $settings,
 			'images'     => $images,
 			'loader'     => $this->loader,
+
+			// Gallery container attributes
+			'gallery_container' => array(
+				'id' => $gallery_id,
+				'class' => array( 'modula', 'modula-gallery' ),
+			),
+
+			// Items container attributes
+			'items_container' => array(
+				'class' => array( 'modula-items' ),
+			),
 		);
 
 		ob_start();
 
 		/* Config for gallery script */
-		$js_config = array(
+		$js_config = apply_filters( 'modula_gallery_settings', array(
 			"margin"          => absint( $settings['margin'] ),
 			"enableTwitter"   => boolval( $settings['enableTwitter'] ),
 			"enableFacebook"  => boolval( $settings['enableFacebook'] ),
 			"enablePinterest" => boolval( $settings['enablePinterest'] ),
-			"enableGplus"     => boolval( $settings['enableGplus'] ),
+			"enableLinkedin"  => boolval( $settings['enableLinkedin'] ),
 			"randomFactor"    => ( $settings['randomFactor'] / 100 ),
 			'type'            => $type,
 			'columns'         => 12,
@@ -163,14 +188,20 @@ class Modula_Shortcode {
 			'tabletColumns'    => isset( $settings['tablet_columns'] ) ? $settings['tablet_columns'] : 2,
 			'mobileColumns'    => isset( $settings['mobile_columns'] ) ? $settings['mobile_columns'] : 1,
 			'lazyLoad'        => isset( $settings['lazy_load'] ) ? $settings['lazy_load'] : 1,
-		);
+		), $settings );
 
-		$template_data['js_config'] = apply_filters( 'modula_gallery_settings', $js_config, $settings );
+		$template_data['gallery_container']['data-config'] = json_encode( $js_config );
+		/**
+		 * Hook: modula_gallery_template_data.
+		 *
+		 * @hooked modula_add_align_classes - 99
+		 */
+		$template_data = apply_filters( 'modula_gallery_template_data', $template_data );
 
 		echo $this->generate_gallery_css( $gallery_id, $settings );
 		$this->loader->set_template_data( $template_data );
     	$this->loader->get_template_part( 'modula', 'gallery' );
-
+    	echo '<!--- This gallery was built with Modula Gallery --->';
     	$html = ob_get_clean();
     	return $html;
 
@@ -181,24 +212,24 @@ class Modula_Shortcode {
 			$css = "<style>";
 
 			if ( $settings['borderSize'] ) {
-				$css .= "#{$gallery_id} .item { border: " . absint($settings['borderSize']) . "px solid " . sanitize_hex_color($settings['borderColor']) . "; }";
+				$css .= "#{$gallery_id} .modula-item { border: " . absint($settings['borderSize']) . "px solid " . sanitize_hex_color($settings['borderColor']) . "; }";
 			}
 
 			if ( $settings['borderRadius'] ) {
-				$css .= "#{$gallery_id} .item { border-radius: " . absint($settings['borderRadius']) . "px; }";
+				$css .= "#{$gallery_id} .modula-item { border-radius: " . absint($settings['borderRadius']) . "px; }";
 			}
 
 			if ( $settings['shadowSize'] ) {
-				$css .= "#{$gallery_id} .item { box-shadow: " . sanitize_hex_color($settings['shadowColor']) . " 0px 0px " . absint($settings['shadowSize']) . "px; }";
+				$css .= "#{$gallery_id} .modula-item { box-shadow: " . sanitize_hex_color($settings['shadowColor']) . " 0px 0px " . absint($settings['shadowSize']) . "px; }";
 			}
 
 			if ( $settings['socialIconColor'] ) {
-				$css .= "#{$gallery_id} .item .jtg-social a { color: " . sanitize_hex_color($settings['socialIconColor']) . " }";
+				$css .= "#{$gallery_id} .modula-item .jtg-social a { color: " . sanitize_hex_color($settings['socialIconColor']) . " }";
 			}
 
-			$css .= "#{$gallery_id} .item .caption { background-color: " . sanitize_hex_color($settings['captionColor']) . ";  }";
+			$css .= "#{$gallery_id} .modula-item .caption { background-color: " . sanitize_hex_color($settings['captionColor']) . ";  }";
 			if ( '' != $settings['captionColor'] || '' != $settings['captionFontSize'] ) {
-				$css .= "#{$gallery_id} .item .figc {";
+				$css .= "#{$gallery_id} .modula-item .figc {";
 				if ( '' != $settings['captionColor'] ) {
 					$css .= 'color:' . sanitize_hex_color($settings['captionColor']) . ';';
 				}
@@ -206,17 +237,22 @@ class Modula_Shortcode {
 			}
 
 			if ( '' != $settings['titleFontSize'] && 0 != $settings['titleFontSize'] ) {
-				$css .= "#{$gallery_id} .item .figc h2.jtg-title {  font-size: " . absint($settings['titleFontSize']) . "px; }";
+				$css .= "#{$gallery_id} .modula-item .figc .jtg-title {  font-size: " . absint($settings['titleFontSize']) . "px; }";
 			}
 
-			$css .= "#{$gallery_id} .item { transform: scale(" . absint( $settings['loadedScale'] ) / 100 . "); }";
+			$css .= "#{$gallery_id} .modula-item { transform: scale(" . absint( $settings['loadedScale'] ) / 100 . "); }";
 
 			if ( 'custom-grid' != $settings['type'] ) {
-				$css .= "#{$gallery_id} .items { width:" . esc_attr($settings['width']) . "; height:" . absint( $settings['height'] ) . "px; }";
+				$css .= "#{$gallery_id} { width:" . esc_attr($settings['width']) . ";}";
+				$css .= "#{$gallery_id} .modula-items{height:" . absint( $settings['height'] ) . "px;}";
 			}
 
-			$css .= "#{$gallery_id} .items .figc p.description { color:" . sanitize_hex_color($settings['captionColor']) . ";font-size:" . absint($settings['captionFontSize']) . "px; }";
-			$css .= "#{$gallery_id} .items .figc h2.jtg-title { color:" . sanitize_hex_color($settings['captionColor']) . "; }";
+			$css .= "#{$gallery_id} .modula-items .figc p.description { color:" . sanitize_hex_color($settings['captionColor']) . ";font-size:" . absint($settings['captionFontSize']) . "px; }";
+			if ( '' != $settings['titleColor'] ) {
+				$css .= "#{$gallery_id} .modula-items .figc .jtg-title { color:" . sanitize_hex_color($settings['titleColor']) . "; }";
+			}else{
+				$css .= "#{$gallery_id} .modula-items .figc .jtg-title { color:" . sanitize_hex_color($settings['captionColor']) . "; }";
+			}
 
 			$css = apply_filters( 'modula_shortcode_css', $css, $gallery_id, $settings );
 
@@ -224,6 +260,20 @@ class Modula_Shortcode {
 			if ( strlen( $settings['style'] ) ) {
 				$css .= esc_html($settings['style']);
 			}
+
+			// Responsive fixes
+
+            $css .= '@media screen and (max-width:480px){';
+
+            if ('' != $settings['mobileTitleFontSize'] && 0 != $settings['mobileTitleFontSize']) {
+
+                $css .= "#{$gallery_id} .modula-item .figc .jtg-title {  font-size: " . absint($settings['mobileTitleFontSize']) . "px; }";
+            }
+
+            $css .= "#{$gallery_id} .modula-items .figc p.description { color:" . sanitize_hex_color($settings['captionColor']) . ";font-size:" . absint($settings['mobileCaptionFontSize']) . "px; }";
+
+            $css .= '}';
+
 
 			$css .= "</style>\n";
 

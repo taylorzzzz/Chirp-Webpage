@@ -20,8 +20,8 @@ spl_autoload_register(function($class) {
         'MailChimp_WooCommerce' => 'includes/class-mailchimp-woocommerce.php',
         'MailChimp_WooCommerce_Privacy' => 'includes/class-mailchimp-woocommerce-privacy.php',
         'Mailchimp_Woocommerce_Deactivation_Survey' => 'includes/class-mailchimp-woocommerce-deactivation-survey.php',
-        'MailChimp_WooCommerce_Queue' => 'includes/class-mailchimp-woocommerce-queue.php',
         'MailChimp_WooCommerce_Rest_Api' => 'includes/class-mailchimp-woocommerce-rest-api.php',
+        'Mailchimp_Wocoomerce_CLI' => 'includes/class-mailchimp-woocommerce-cli.php',
         
         // includes/api/assets
         'MailChimp_WooCommerce_Address' => 'includes/api/assets/class-mailchimp-address.php',
@@ -53,6 +53,7 @@ spl_autoload_register(function($class) {
         'MailChimp_WooCommerce_Transform_Products' => 'includes/api/class-mailchimp-woocommerce-transform-products.php',
 
         // includes/processes
+        'Mailchimp_Woocommerce_Job' => 'includes/processes/class-mailchimp-woocommerce-job.php',
         'MailChimp_WooCommerce_Abstract_Sync' => 'includes/processes/class-mailchimp-woocommerce-abstract-sync.php',
         'MailChimp_WooCommerce_Cart_Update' => 'includes/processes/class-mailchimp-woocommerce-cart-update.php',
         'MailChimp_WooCommerce_Process_Coupons' => 'includes/processes/class-mailchimp-woocommerce-process-coupons.php',
@@ -63,16 +64,12 @@ spl_autoload_register(function($class) {
         'MailChimp_WooCommerce_Single_Order' => 'includes/processes/class-mailchimp-woocommerce-single-order.php',
         'MailChimp_WooCommerce_Single_Product' => 'includes/processes/class-mailchimp-woocommerce-single-product.php',
         'MailChimp_WooCommerce_User_Submit' => 'includes/processes/class-mailchimp-woocommerce-user-submit.php',
-        'MailChimp_WooCommerce_Rest_Queue' => 'includes/processes/class-mailchimp-woocommerce-rest-queue.php',
-
+        
         'MailChimp_WooCommerce_Public' => 'public/class-mailchimp-woocommerce-public.php',
         'MailChimp_WooCommerce_Admin' => 'admin/class-mailchimp-woocommerce-admin.php',
-
-        'WP_Job' => 'includes/vendor/queue/classes/wp-job.php',
-        'WP_Queue' => 'includes/vendor/queue/classes/wp-queue.php',
-        'WP_Http_Worker' => 'includes/vendor/queue/classes/worker/wp-http-worker.php',
-        'WP_Worker' => 'includes/vendor/queue/classes/worker/wp-worker.php',
-        'Queue_Command' => 'includes/vendor/queue/classes/cli/queue-command.php',
+        
+        // Queue system Action Scheduler
+        'ActionScheduler' => 'includes/vendor/action-scheduler/action-scheduler.php',
     );
 
     // if the file exists, require it
@@ -93,11 +90,11 @@ function mailchimp_environment_variables() {
     return (object) array(
         'repo' => 'master',
         'environment' => 'production', // staging or production
-        'version' => '2.1.15',
+        'version' => '2.3',
         'php_version' => phpversion(),
         'wp_version' => (empty($wp_version) ? 'Unknown' : $wp_version),
         'wc_version' => function_exists('WC') ? WC()->version : null,
-        'logging' => ($o && is_array($o) && isset($o['mailchimp_logging'])) ? $o['mailchimp_logging'] : 'debug',
+        'logging' => ($o && is_array($o) && isset($o['mailchimp_logging'])) ? $o['mailchimp_logging'] : 'standard',
     );
 }
 
@@ -143,90 +140,94 @@ if (defined( 'WP_CLI' ) && WP_CLI) {
             }
         };
         WP_CLI::add_command( 'mailchimp_push', 'mailchimp_cli_push_command');
-        WP_CLI::add_command( 'queue', 'Queue_Command' );
+        WP_CLI::add_command( 'queue', 'Mailchimp_Wocoomerce_CLI' );
     } catch (\Exception $e) {}
 }
 
-if (!function_exists( 'wp_queue')) {
-    /**
-     * WP queue.
-     *
-     * @param WP_Job $job
-     * @param int    $delay
-     */
-    function wp_queue( WP_Job $job, $delay = 0 ) {
-        global $wp_queue;
-        if (empty($wp_queue)) {
-            $wp_queue = new WP_Queue();
-        }
-        $wp_queue->push( $job, $delay );
-        do_action( 'wp_queue_job_pushed', $job );
+/**
+ * Push a job onto the Action Scheduler queue.
+ *
+ * @param Mailchimp_Woocommerce_Job $job
+ * @param int $delay
+ *
+ * @return true
+ */
+function mailchimp_as_push( Mailchimp_Woocommerce_Job $job, $delay = 0 ) {			
+    global $wpdb;
+    $job_id = isset($job->id) ? $job->id : get_class($job);
+    
+    $args = array(
+        'job' => maybe_serialize($job),
+        'obj_id' => $job_id,
+        'created_at'   => gmdate( 'Y-m-d H:i:s', time() )
+    );
+    
+    $existing_actions = as_get_scheduled_actions(array(
+        'hook' => get_class($job), 
+        'status' => ActionScheduler_Store::STATUS_PENDING,  
+        'args' => array(
+            'obj_id' => isset($job->id) ? $job->id : null), 
+            'group' => 'mc-woocommerce'
+        )
+    );
+    
+    if (!empty($existing_actions)) {
+        as_unschedule_action(get_class($job), array('obj_id' => $job->id), 'mc-woocommerce');
     }
+    else {
+        $inserted = $wpdb->insert($wpdb->prefix."mailchimp_jobs", $args);
+        if (!$inserted) {
+            try {
+                if (mailchimp_string_contains($wpdb->last_error, 'Table')) {
+                    mailchimp_debug('DB Issue: `mailchimp_job` table was not found!', 'Creating Tables');
+                    install_mailchimp_queue();
+                    $inserted = $wpdb->insert($wpdb->prefix."mailchimp_jobs", $args);
+                    if (!$inserted) {
+                        mailchimp_debug('Queue Job '.get_class($job), $wpdb->last_error);
+                    }
+                }
+            } catch (\Exception $e) {
+                mailchimp_error_trace($e, 'trying to create queue tables');
+            }
+        }
+    }
+
+    // TODO: deal with errors
+    $action = as_schedule_single_action( strtotime( '+'.$delay.' seconds' ), get_class($job), array('obj_id' => $job_id), "mc-woocommerce");
+    
+    $message = ($job_id != get_class($job)) ? ' :: obj_id '.$job_id : '';
+    if (!empty($existing_actions)) {
+        mailchimp_debug('action_scheduler.reschedule_job', get_class($job) . ($delay > 0 ? ' restarts in '.$delay. ' seconds' : ' restarts in the next minute' ) . $message);
+    } 
+    else {
+        mailchimp_log('action_scheduler.queue_job', get_class($job) . ($delay > 0 ? ' starts in '.$delay. ' seconds' : ' starts in the next minute' ) .$message);
+    }
+
+    return $action;	
 }
 
+
 /**
- * @param WP_Job $job
+ * @param Mailchimp_Woocommerce_Job $job
  * @param int $delay
  * @param bool $force_now
  */
-function mailchimp_handle_or_queue(WP_Job $job, $delay = 0, $force_now = false)
-{
-    wp_queue($job, $delay);
-
-    // force now is used during the sync.
-    if ($force_now === true || mailchimp_should_init_rest_queue()) {
-        mailchimp_call_rest_api_queue_manually();
-    }
-}
-
-/**
- * @param bool $job_check
- * @return bool
- */
-function mailchimp_should_init_rest_queue($job_check = false) {
-    if (mailchimp_running_in_console()) return false;
-    if (mailchimp_queue_is_disabled()) return false;
-    if (!mailchimp_is_configured()) return false;
-    if (mailchimp_http_worker_is_running()) return false;
-    return !$job_check ? true : MailChimp_WooCommerce_Queue::instance()->available_jobs() > 0;
-}
-
-/**
- * @param int $max
- * @return bool|DateTime
- */
-function mailchimp_get_http_lock_expiration($max = 300) {
-    try {
-        if (($lock_time = (string) get_site_transient('http_worker_lock')) && !empty($lock_time)) {
-            $parts = str_getcsv($lock_time, ' ');
-            if (count($parts) >= 2 && is_numeric($parts[1])) {
-                $lock_duration = apply_filters('http_worker_lock_time', 60);
-                if (empty($lock_duration) || !is_numeric($lock_duration) || ($lock_duration >= $max)) {
-                    $lock_duration = $max;
-                }
-                // craft a new date time object
-                $date = new \DateTime();
-                // set the timestamp with the lock duration
-                $date->setTimestamp(((int) $parts[1] + $lock_duration));
-                return $date;
-            }
+function mailchimp_handle_or_queue(Mailchimp_Woocommerce_Job $job, $delay = 0)
+{   
+    if ($job instanceof \MailChimp_WooCommerce_Single_Order && isset($job->id)) {
+        // if this is a order process already queued - just skip this
+        if (get_site_transient("mailchimp_order_being_processed_{$job->id}") == true) {
+            return;
         }
-    } catch (\Exception $e) {}
-    return false;
-}
-
-/**
- * @return bool
- */
-function mailchimp_should_reset_http_lock() {
-    return ($lock = mailchimp_get_http_lock_expiration()) && $lock->getTimestamp() < time();
-}
-
-/**
- * @return bool
- */
-function mailchimp_reset_http_lock() {
-    return delete_site_transient( 'http_worker_lock' );
+        // tell the system the order is already queued for processing in this saving process - and we don't need to process it again.
+        set_site_transient( "mailchimp_order_being_processed_{$job->id}", true, 30);
+    }
+    
+    $as_job_id = mailchimp_as_push($job, $delay);
+    
+    if (!is_int($as_job_id)) {
+        mailchimp_log('action_scheduler.queue_fail', get_class($job) .' FAILED :: as_job_id: '.$as_job_id);
+    }
 }
 
 /**
@@ -285,10 +286,49 @@ function mailchimp_get_list_id() {
  */
 function mailchimp_get_store_id() {
     $store_id = mailchimp_get_data('store_id', false);
+    $api = mailchimp_get_api();
+    if (mailchimp_is_configured()) {
+        // let's retrieve the store for this domain, through the API
+        $store = $api->getStore($store_id, false);
+        // if there's no store, try to fetch from mc a store related to the current domain
+        if (!$store) {
+            $stores = $api->stores();
+            //iterate thru stores, find correct store ID and save it to db
+            foreach ($stores as $mc_store) {
+                if ($mc_store->getDomain() === get_option('siteurl')) {
+                    update_option('mailchimp-woocommerce-store_id', $mc_store->getId(), 'yes');
+                    $store_id = $mc_store->getId();
+                }
+            }
+        }
+    }
+
     if (empty($store_id)) {
         mailchimp_set_data('store_id', $store_id = uniqid(), 'yes');
     }
     return $store_id;
+}
+
+/**
+ * @return array
+ */
+function mailchimp_get_user_tags_to_update() {
+    $tags = mailchimp_get_option('mailchimp_user_tags');
+
+    if (empty($tags)) {
+        return false;
+    }
+
+    $tags = explode(',', $tags);
+
+    foreach ($tags as $tag) {
+        $formatted_tags[] = array("name" => $tag, "status" => 'active');
+    }
+
+    // apply filter to user custom tags addition/removal
+    $formatted_tags = apply_filters('mailchimp_user_tags', $formatted_tags);
+    
+    return $formatted_tags;
 }
 
 /**
@@ -462,6 +502,7 @@ function mailchimp_woocommerce_get_all_image_sizes_list() {
     $response = array();
     foreach (mailchimp_woocommerce_get_all_image_sizes() as $key => $data) {
         $label = ucwords(str_replace('_', ' ', $key));
+        $label = __($label);
         $response[$key] = "{$label} ({$data['width']} x {$data['height']})";
     }
     return $response;
@@ -705,16 +746,6 @@ function mailchimpi_refresh_connected_site_script(MailChimp_WooCommerce_Store $s
 }
 
 /**
- * @return bool
- */
-function mailchimp_detect_admin_ajax() {
-    if (defined('DOING_CRON') && DOING_CRON) return true;
-    if (!is_admin()) return false;
-    if (!defined('DOING_AJAX')) return false;
-    return DOING_AJAX;
-}
-
-/**
  * @return string|false
  */
 function mailchimp_get_connected_site_script_url() {
@@ -729,32 +760,6 @@ function mailchimp_get_connected_site_script_fragment() {
 }
 
 /**
- * @return bool
- */
-function mailchimp_running_in_console() {
-    return (bool) (defined( 'DISABLE_WP_HTTP_WORKER' ) && true === DISABLE_WP_HTTP_WORKER);
-}
-
-/**
- * @return bool
- */
-function mailchimp_queue_is_disabled() {
-    return (bool) (defined( 'MAILCHIMP_DISABLE_QUEUE' ) && true === MAILCHIMP_DISABLE_QUEUE);
-}
-
-/**
- * @return bool
- */
-function mailchimp_http_worker_is_running() {
-    if (mailchimp_should_reset_http_lock()) {
-        mailchimp_reset_http_lock();
-        mailchimp_log('http_worker_lock', "HTTP worker lock needed to be deleted to initiate the queue.");
-        return false;
-    }
-    return (bool) get_site_transient('http_worker_lock');
-}
-
-/**
  * @param $email
  * @return bool
  */
@@ -764,7 +769,6 @@ function mailchimp_email_is_allowed($email) {
     }
     return true;
 }
-
 
 /**
  * @param $email
@@ -788,69 +792,6 @@ function mailchimp_email_is_amazon($email) {
  */
 function mailchimp_hash_trim_lower($str) {
     return md5(trim(strtolower($str)));
-}
-
-/**
- * @return array|WP_Error
- */
-function mailchimp_call_rest_api_queue_manually() {
-    return MailChimp_WooCommerce_Rest_Api::work();
-}
-
-/**
- * @return array|WP_Error
- */
-function mailchimp_call_rest_api_test() {
-    return MailChimp_WooCommerce_Rest_Api::test();
-}
-
-/**
- * @return bool|string
- */
-function mailchimp_woocommerce_check_if_http_worker_fails() {
-
-    // if the user has defined that they are going to use the queue from the console, we can just return false here.
-    // this means they've agreed to run the queue from a CLI version instead.
-    if (mailchimp_running_in_console()) {
-        return false;
-    }
-
-    // if the function doesn't exist we can't do anything.
-    if (!function_exists('wp_remote_post')) {
-        mailchimp_set_data('test.can.remote_post', false);
-        mailchimp_set_data('test.can.remote_post.error', 'function "wp_remote_post" does not exist');
-        return 'function "wp_remote_post" does not exist';
-    }
-
-    // apply a blocking call to make sure we get the response back
-    $response = mailchimp_call_rest_api_test();
-
-    if (is_wp_error($response)) {
-        // nope, we have problems
-        mailchimp_set_data('test.can.remote_post', false);
-        mailchimp_set_data('test.can.remote_post.error', $response->get_error_message());
-        return $response->get_error_message();
-    } elseif (is_array($response) && isset($response['http_response']) && ($r = $response['http_response'])) {
-        /** @var \WP_HTTP_Requests_Response $r */
-        if ((int) $r->get_status() !== 200) {
-            $message = 'The REST API seems to be disabled on this wordpress site. Please enable to sync data.';
-            mailchimp_set_data('test.can.remote_post', false);
-            mailchimp_set_data('test.can.remote_post.error', $message);
-            return $message;
-        }
-    }
-
-    // yep all good.
-    mailchimp_set_data('test.can.remote_post', true);
-    mailchimp_set_data('test.can.remote_post.error', false);
-    return false;
-}
-
-/**
- * @return string
- */
-function mailchimp_test_http_worker_ajax() {
-    wp_send_json(array('success' => true), 200);
 }
 
 /**
@@ -960,16 +901,37 @@ function mailchimp_check_if_on_sync_tab() {
     return false;
 }
 
-function mailchimp_flush_queue_tables() {
+function mailchimp_flush_database_tables() {
     try {
         /** @var \ */
         global $wpdb;
-        $wpdb->query($wpdb->prepare("TRUNCATE `{$wpdb->prefix}queue`", array()));
-        $wpdb->query($wpdb->prepare("TRUNCATE `{$wpdb->prefix}failed_jobs`", array()));
-        $wpdb->query($wpdb->prepare("TRUNCATE `{$wpdb->prefix}mailchimp_carts`", array()));
+        
+        mailchimp_delete_as_jobs();
+        
+        $wpdb->query("TRUNCATE `{$wpdb->prefix}mailchimp_carts`");
+        $wpdb->query("TRUNCATE `{$wpdb->prefix}mailchimp_jobs`");
     } catch (\Exception $e) {}
 }
 
+function mailchimp_delete_as_jobs() {
+
+    $existing_as_actions = as_get_scheduled_actions(
+        array(
+            'status' => ActionScheduler_Store::STATUS_PENDING,  
+            'group' => 'mc-woocommerce',
+            'per_page' => -1,
+        )
+    );
+    
+    if (!empty($existing_as_actions)) {
+        foreach ($existing_as_actions as $as_action) {
+            as_unschedule_action($as_action->get_hook(), $as_action->get_args(), 'mc-woocommerce');    # code...
+        }
+        return true;
+    }
+    return false;
+
+}
 function mailchimp_flush_sync_pointers() {
     // clean up the initial sync pointers
     foreach (array('orders', 'products', 'coupons') as $resource_type) {
@@ -983,7 +945,8 @@ function mailchimp_flush_sync_pointers() {
  * To be used when running clean up for uninstalls or re-installs.
  */
 function mailchimp_clean_database() {
-    mailchimp_flush_queue_tables();
+    // delete custom tables data
+    mailchimp_flush_database_tables();
 
     // clean up the initial sync pointers
     mailchimp_flush_sync_pointers();
@@ -1000,31 +963,21 @@ function mailchimp_clean_database() {
 }
 
 /**
- * @param array $data
- * @param int $status
- * @return WP_REST_Response
- */
-function mailchimp_rest_response($data, $status = 200) {
-    if (!is_array($data)) $data = array();
-    $response = new WP_REST_Response($data);
-    $response->set_status($status);
-    return $response;
-}
-
-/**
  * @return bool
  */
 function mailchimp_has_started_syncing() {
     $sync_started_at = get_option('mailchimp-woocommerce-sync.started_at');
-    return !empty($sync_started_at);
+    $sync_completed_at = get_option('mailchimp-woocommerce-sync.completed_at');
+    return ($sync_completed_at < $sync_started_at);
 }
 
 /**
  * @return bool
  */
 function mailchimp_is_done_syncing() {
+    $sync_started_at = get_option('mailchimp-woocommerce-sync.started_at');
     $sync_completed_at = get_option('mailchimp-woocommerce-sync.completed_at');
-    return !empty($sync_completed_at);
+    return ($sync_completed_at >= $sync_started_at);
 }
 
 function run_mailchimp_woocommerce() {

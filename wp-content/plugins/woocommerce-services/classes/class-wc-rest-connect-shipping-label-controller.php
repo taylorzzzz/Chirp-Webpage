@@ -34,15 +34,28 @@ class WC_REST_Connect_Shipping_Label_Controller extends WC_REST_Connect_Base_Con
 	public function post( $request ) {
 		$settings = $request->get_json_params();
 		$order_id = $request[ 'order_id' ];
-
-		$settings[ 'payment_method_id' ] = $this->settings_store->get_selected_payment_method_id();
 		$settings[ 'order_id' ] = $order_id;
 
+		if ( empty( $settings[ 'payment_method_id' ] ) || ! $this->settings_store->can_user_manage_payment_methods() ) {
+			$settings[ 'payment_method_id' ] = $this->settings_store->get_selected_payment_method_id();
+		} else {
+			$this->settings_store->set_selected_payment_method_id( $settings[ 'payment_method_id' ] );
+		}
+
+		$last_box_id = '';
 		$service_names = array();
 		foreach ( $settings[ 'packages' ] as $index => $package ) {
 			$service_names[] = $package[ 'service_name' ];
 			unset( $package[ 'service_name' ] );
 			$settings[ 'packages' ][ $index ] = $package;
+
+			if ( empty( $last_box_id ) && ! empty( $package['box_id'] ) ) {
+				$last_box_id = $package['box_id'];
+			}
+		}
+
+		if ( ! empty( $last_box_id ) ) {
+			update_user_meta( get_current_user_id(), 'wc_connect_last_box_id', $last_box_id );
 		}
 
 		$response = $this->api_client->send_shipping_label_request( $settings );

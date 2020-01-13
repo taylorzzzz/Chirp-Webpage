@@ -1,7 +1,7 @@
 var STREAMS = [
     /* Big Bear Stream */
     {
-        "id": "5b2dUgK6VV4",
+        "id": "NBQhLAIBTH0",
         "title": "Eagle Nest, Big Bear, California",
         "isStream": true,
         "displayTitle": true,
@@ -11,7 +11,7 @@ var STREAMS = [
     },
     /* Cornell Streams */
     {
-        "id": "5x01AdCuLnk",
+        "id": "N609loYkFJo",
         "title": "Sapsucker Woods Feeder, Cornell Lab of Ornithology",
         "isStream": true,
         "displayTitle": false,
@@ -20,7 +20,7 @@ var STREAMS = [
         "isPrioritized": false
     },
     {
-        "id": "S9S68ERXXwo",
+        "id": "3WI4UZgxG64",
         "title": "Sapsucker Woods Pond, Cornell Lab of Ornithology",
         "isStream": true,
         "displayTitle": false,
@@ -29,8 +29,66 @@ var STREAMS = [
         "isPrioritized": false
     },
     {
-        "id": "v2WS_SalH94",
+        "id": "85Zrvv9h_yE",
         "title": "Osprey Nest, Hellgate Canyon, Montana",
+        "isStream": true,
+        "displayTitle": false,
+        "worksAtNight": true,
+        "sundownAt": 24,
+        "isPrioritized": false
+    },
+    /*
+    {
+        "id": "fBk3nZUIFco",
+        "title": "Osprey Nest, Skidaway Island, Georgia",
+        "isStream": true,
+        "displayTitle": true,
+        "worksAtNight": true,
+        "sundownAt": 24,
+        "isPrioritized": false
+    },
+    */
+    {
+        "id": "8thJ9NlzFPo",
+        "title": "Hummingbird Feeder, West Texas, US",
+        "isStream": true,
+        "displayTitle": true,
+        "worksAtNight": true,
+        "sundownAt": 24,
+        "isPrioritized": false
+    },
+    {
+        "id": "gLDd2EBwccc",
+        "title": "Ospereys, Hellgate Canyon, Montana",
+        "isStream": true,
+        "displayTitle": false,
+        "worksAtNight": false,
+        "sundownAt": 18,
+        "isPrioritized": false
+    },
+    {
+        "id": "VlLg9voGvQY",
+        "title": "Osperey Nest, Hellgate Canyon, Montana",
+        "isStream": true,
+        "displayTitle": false,
+        "worksAtNight": false,
+        "sundownAt": 18,
+        "isPrioritized": false
+    },
+    /*
+    {
+        "id": "TRzHuWtCULU",
+        "title": "Bermuda Cahow, Nonsuch Island, Bermuda",
+        "isStream": true,
+        "displayTitle": false,
+        "worksAtNight": false,
+        "sundownAt": 18,
+        "isPrioritized": false
+    },
+    */
+    {
+        "id": "WtoxxHADnGk",
+        "title": "Fruit Feeder, Panama",
         "isStream": true,
         "displayTitle": false,
         "worksAtNight": true,
@@ -40,7 +98,7 @@ var STREAMS = [
     /* Explore Birds Bats Bees Streams */
     /* Catalina Eagles */
     {
-        "id": "fNTfmt0KB0E",
+        "id": "ZvX4KElPq2k",
         "title": "Eagle Nest, Sauces, Catalina",
         "isStream": true,
         "displayTitle": true,
@@ -49,7 +107,7 @@ var STREAMS = [
         "isPrioritized": false
     },
     {
-        "id": "cHijBjTU5oc",
+        "id": "iC1-E0WHbfI",
         "title": "Eagle Nest, Two Harbors, Catalina",
         "isStream": true,
         "displayTitle": true,
@@ -59,7 +117,7 @@ var STREAMS = [
     },
     /* Decorah Eagles */
     {
-        "id": "deWeERCVc2o",
+        "id": "UmclL6funN8",
         "title": "Eagle Nest, Decorah, Iowa (1)",
         "isStream": true,
         "displayTitle": true,
@@ -67,29 +125,9 @@ var STREAMS = [
         "sundownAt": 16,
         "isPrioritized": false
     },
-    {
-        "id": "pIEUiJaMPQ4",
-        "title": "Eagle Nest, Decorah, Iowa (2)",
-        "isStream": true,
-        "displayTitle": true,
-        "worksAtNight": true,
-        "sundownAt": 24,
-        "isPrioritized": false
-    },
     /* University of Montana */
-    /*
     {
-        "id": "83rew1vXFZk",
-        "title": "Hellgate Owl Pole, University of Montana",
-        "isStream": true,
-        "displayTitle": false,
-        "worksAtNight": false,
-        "sundownAt": 14,
-        "isPrioritized": false
-    },
-    */
-    {
-        "id": "HEQ6blgEZwU",
+        "id": "gYkci0rH8Ac",
         "title": "Osprey Nest, Charlo, Montana",
         "isStream": true,
         "displayTitle": true,
@@ -97,19 +135,10 @@ var STREAMS = [
         "sundownAt": 24,
         "isPrioritized": false
     },
-    {
-        "id": "md7hy8i88SM",
-        "title": "Owl Nest, Charlo, Montana",
-        "isStream": true,
-        "displayTitle": true,
-        "worksAtNight": false,
-        "sundownAt": 24,
-        "isPrioritized": false
-    },
     /* Hummingbirds */
     {
-        "id": "QCTQxFlztoU",
-        "title": "Hummingbird Fountain, US",
+        "id": "8iFlwH2Nr30",
+        "title": "Hummingbird Feeder, US",
         "isStream": true,
         "displayTitle": true,
         "worksAtNight": true,
@@ -117,7 +146,7 @@ var STREAMS = [
         "isPrioritized": false
     },
     {
-        "id": "8iFlwH2Nr30",
+        "id": "DqkrF1zUSFk",
         "title": "Hummingbird Nest, La Verne, California (1)",
         "isStream": true,
         "displayTitle": true,
@@ -126,15 +155,6 @@ var STREAMS = [
         "isPrioritized": false
     },
     /* Other */
-    {
-        "id": "Vj_mGgFCRQ0",
-        "title": "Osperey Nest, Savannah, Georgia",
-        "isStream": true,
-        "displayTitle": true,
-        "worksAtNight": false,
-        "sundownAt": 16,
-        "isPrioritized": false
-    },
     {
         "id": "pDzgu0ihW8g",
         "title": "Chesapeake Conservancy, Balitmore",
@@ -145,39 +165,21 @@ var STREAMS = [
         "isPrioritized": false
     },
     {
-        "id": "dH08VYGMj7g",
-        "title": "Fruit Feeder, Panama",
-        "isStream": true,
-        "displayTitle": false,
-        "worksAtNight": false,
-        "sundownAt": 16,
-        "isPrioritized": false
-    },
-    {
         "id": "DH0VmRsj05c",
         "title": "Mississippi River Flyway",
         "isStream": true,
         "displayTitle": true,
         "worksAtNight": false,
-        "sundownAt": 15,
+        "sundownAt": 16,
         "isPrioritized": false
     },
     {
-        "id": "3lkjNgPmQKM",
-        "title": "Osperey Nest, Hog's Island, Maine",
+        "id": "O6Ir_sMsTtc",
+        "title": "Osperey Nest, Hog's Island, Maine (1)",
         "isStream": true,
         "displayTitle": true,
         "worksAtNight": false,
-        "sundownAt": 14,
-        "isPrioritized": false
-    },
-    {
-        "id": "VNkSGJKs1P0",
-        "title": "Peregrine Falcons, Anacapa Island, CA",
-        "isStream": true,
-        "displayTitle": true,
-        "worksAtNight": true,
-        "sundownAt": 24,
+        "sundownAt": 18,
         "isPrioritized": false
     },
     {
@@ -189,46 +191,26 @@ var STREAMS = [
         "sundownAt": 24,
         "isPrioritized": false
     },
-/*
     {
-        "id": "KopGx0oU6X0",
-        "title": "Hummingbird Feeder, US",
-        "isStream": true,
-        "displayTitle": true,
-        "worksAtNight": true,
-        "sundownAt": 24,
-        "isPrioritized": false
-    },
-    {
-        "id": "ZnWW3v60tPM",
-        "title": "Great Spirit Bluff Cliff, Minnesota",
+        "id": "jIQdShjgUBM",
+        "title": "Osperey Nest, Hog's Island, Maine (2)",
         "isStream": true,
         "displayTitle": true,
         "worksAtNight": false,
-        "sundownAt": 15,
+        "sundownAt": 18,
         "isPrioritized": false
     },
-    
+    /*
     {
-        "id": "mk3xF0KyAOE",
-        "title": "Eagle Nest, West End, Catalina",
+        "id": "ArMVdjQlxDw",
+        "title": "Puffin Burrow, Seal Island, Maine",
         "isStream": true,
         "displayTitle": true,
         "worksAtNight": false,
-        "sundownAt": 16,
+        "sundownAt": 18,
         "isPrioritized": false
     },
-    {
-        "id": "DqkrF1zUSFk",
-        "title": "Hummingbird Nest, La Verne, California (2)",
-        "isStream": true,
-        "displayTitle": true,
-        "worksAtNight": true,
-        "sundownAt": 24,
-        "isPrioritized": false
-    },
-*/
-
+    */
     /***********************************/
     /* THE FOLLOWING ARE ALL PRERECORDED VIDEOS */
     /***********************************/

@@ -55,7 +55,10 @@
 			</div>
 		</header>
 
+
+
 		<?php get_template_part( 'template-parts/element', 'page-header' ); ?>
 
 		<?php do_action( 'cpotheme_before_main' ); ?>
+        
 		<div class="clear"></div>

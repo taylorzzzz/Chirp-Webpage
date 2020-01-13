@@ -1,14 +1,14 @@
 <?php
 
 /**
- * 
+ *
  */
 class Modula_Admin {
 
 	private $tabs;
 	private $version = '2.0.0';
 	private $current_tab = 'general';
-	
+
 	function __construct() {
 
 		// Register our submenus
@@ -16,6 +16,9 @@ class Modula_Admin {
 
 		// Show general tab
 		add_action( 'modula_admin_tab_general', array( $this, 'show_general_tab' ) );
+
+		// Add CSS to admin menu
+		add_action( 'admin_head', array( $this, 'admin_custom_css' ) );
 
 		add_action( 'wp_ajax_modula_save_images', array( $this, 'save_images' ) );
 		add_action( 'wp_ajax_modula_save_image', array( $this, 'save_image' ) );
@@ -34,7 +37,7 @@ class Modula_Admin {
 		if ( ! empty( $this->tabs ) ) {
 			add_submenu_page( 'edit.php?post_type=modula-gallery', esc_html__( 'Settings', 'modula-best-grid-gallery' ), esc_html__( 'Settings', 'modula-best-grid-gallery' ), 'manage_options', 'modula', array( $this, 'show_submenu' ) );
 		}
-		
+
 		add_submenu_page( 'edit.php?post_type=modula-gallery', esc_html__( 'Extensions', 'modula-best-grid-gallery' ), esc_html__( 'Extensions', 'modula-best-grid-gallery' ), 'manage_options', 'modula-addons', array( $this, 'show_addons' ) );
 
 	}
@@ -62,10 +65,6 @@ class Modula_Admin {
 				'name' => esc_html__( 'Extensions', 'modula-best-grid-gallery' ),
 				'url'  => admin_url( 'edit.php?post_type=modula-gallery&page=modula-addons' ),
 			),
-			'partners' => array(
-				'name' => esc_html__( 'Partners', 'modula-best-grid-gallery' ),
-				'url'  => admin_url( 'edit.php?post_type=modula-gallery&page=modula-addons&tab=partners' ),
-			),
 		);
 		$tabs       = apply_filters( 'modula_exntesions_tabs', $tabs );
 		$active_tab = 'extensions';
@@ -73,7 +72,7 @@ class Modula_Admin {
 			$active_tab = $_GET['tab'];
 		}
 		?>
-		<div class="about-wrap">
+		<div class="wrap">
 		<h2 class="nav-tab-wrapper">
 			<?php
 			foreach( $tabs as $tab_id => $tab ) {
@@ -89,49 +88,18 @@ class Modula_Admin {
 
 		if ( 'extensions' == $active_tab ) {
 			$addons = new Modula_Addons();
-			echo '<div class="modula-addons-container">';
-			$addons->render_addons();
-			echo '</div>';
-		}elseif ( 'partners' == $active_tab ) {
-			
-			$partners = array(
-				'shortpixel' => array(
-					'name'        => esc_html__( 'ShortPixel Image Optimizer', 'modula-best-grid-gallery' ),
-					'description' => esc_html__( 'Increase your website’s SEO ranking, number of visitors and ultimately your sales by optimizing any image.', 'modula-best-grid-gallery' ),
-					'url'         => 'https://shortpixel.com/otp/af/HUOYEBB31472',
-					'button'      => esc_html__( 'Test your site for free', 'modula-best-grid-gallery' ),
-					'image'       => 'https://ps.w.org/shortpixel-image-optimiser/assets/icon-128x128.png?rev=1038819',
-				),
-				'optimole' => array(
-					'name'        => esc_html__( 'Optimole', 'modula-best-grid-gallery' ),
-					'description' => esc_html__( 'Image optimization & resizing. Image acceleration through CDN. On-the-fly image handling.', 'modula-best-grid-gallery' ),
-					'url'         => 'https://optimole.com/',
-					'button'      => esc_html__( 'Check it out for free', 'modula-best-grid-gallery' ),
-					'image'       => 'https://ps.w.org/optimole-wp/assets/icon-128x128.png?rev=1975706',
-				),
-			);
-
-			echo '<div class="modula-partners">';
-			foreach ( $partners as $partner_id => $partner ) {
-				echo '<div id="' . $partner_id . '" class="col modula-partner-box">';
-					echo '<img src="' . esc_url( $partner['image'] ) . '">';
-					echo '<div class="modula-partner-box__name">' . esc_html( $partner['name'] ) . '</div>';
-					echo '<div class="modula-partner-box__description">' . esc_html( $partner['description'] ) . '</div>';
-					echo '<div class="modula-partner-box__action-bar">';
-						echo '<span class="modula-partner-box__action-button">';
-							echo '<a class="button" href="' . esc_url( $partner['url'] ) . '" target="_blank">' . esc_html( $partner['button'] ) . '</a>';
-						echo '</span>';
-					echo '</div>';
-				echo '</div>';
-			}
-			echo '</div>';
-			echo '</div>';
-
+			?>
+			<h1 style="margin-bottom: 20px; display: inline-block;"><?php esc_html_e( 'Extensions', 'modula-best-grid-gallery' ); ?></h1>
+			<a id="modula-reload-extensions" class="button button-primary" style="margin: 10px 0 0 30px;" data-nonce="<?php echo esc_attr( wp_create_nonce( 'modula-reload-extensions' ) ); ?>"><?php esc_html_e( 'Reload Extensions', 'modula-best-grid-gallery' ); ?></a>
+			<div class="modula-addons-container">
+				<?php $addons->render_addons(); ?>
+			</div>
+			<?php
 		}else{
 			do_action( "modula_exntesion_{$active_tab}_tab" );
 		}
 
-		
+
 	}
 
 	private function generate_url( $tab ) {
@@ -172,10 +140,10 @@ class Modula_Admin {
 						$new_image[ $attribute ] = absint( $image[ $attribute ] );
 						break;
 					case 'title':
-					case 'description' : 
+					case 'description' :
 						$new_image[ $attribute ] = wp_filter_post_kses( $image[ $attribute ] );
 						break;
-					case 'link' : 
+					case 'link' :
 						$new_image[ $attribute ] = esc_url_raw( $image[ $attribute ] );
 						break;
 					case 'target':
@@ -217,7 +185,7 @@ class Modula_Admin {
 
 		$nonce = $_POST['_wpnonce'];
 		if ( ! wp_verify_nonce( $nonce, 'modula-ajax-save' ) ) {
-		    wp_send_json( array( 'status' => 'failed' ) ); 
+		    wp_send_json( array( 'status' => 'failed' ) );
 		}
 
 		if ( ! isset( $_POST['gallery'] ) ) {
@@ -250,10 +218,10 @@ class Modula_Admin {
 	}
 
 	public function save_image(){
-		
+
 		$nonce = $_POST['_wpnonce'];
 		if ( ! wp_verify_nonce( $nonce, 'modula-ajax-save' ) ) {
-		    wp_send_json( array( 'status' => 'failed' ) ); 
+		    wp_send_json( array( 'status' => 'failed' ) );
 		}
 
 		if ( ! isset( $_POST['gallery'] ) ) {
@@ -282,6 +250,16 @@ class Modula_Admin {
 		update_post_meta( $gallery_id, 'modula-images', $old_images );
 		wp_send_json( array( 'status' => 'succes' ) );
 
+	}
+
+	public function admin_custom_css(){
+		?>
+
+		<style type="text/css">
+			li#menu-posts-modula-gallery .wp-submenu li:last-child a {color: #52ad3a;}
+		</style>
+
+		<?php
 	}
 
 }

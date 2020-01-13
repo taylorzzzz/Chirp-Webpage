@@ -20,41 +20,56 @@ jetpack_register_block(
 function jetpack_business_hours_get_default_days() {
 	return array(
 		array(
-			'name' => 'Sun',
+			'name'  => 'Sun',
 			'hours' => array(),
 		),
 		array(
-			'name' => 'Mon',
+			'name'  => 'Mon',
 			'hours' => array(
-				array( 'opening' => '09:00', 'closing' => '17:00' )
+				array(
+					'opening' => '09:00',
+					'closing' => '17:00',
+				),
 			),
 		),
 		array(
-			'name' => 'Tue',
+			'name'  => 'Tue',
 			'hours' => array(
-				array( 'opening' => '09:00', 'closing' => '17:00' )
+				array(
+					'opening' => '09:00',
+					'closing' => '17:00',
+				),
 			),
 		),
 		array(
-			'name' => 'Wed',
+			'name'  => 'Wed',
 			'hours' => array(
-				array( 'opening' => '09:00', 'closing' => '17:00' )
+				array(
+					'opening' => '09:00',
+					'closing' => '17:00',
+				),
 			),
 		),
 		array(
-			'name' => 'Thu',
+			'name'  => 'Thu',
 			'hours' => array(
-				array( 'opening' => '09:00', 'closing' => '17:00' )
+				array(
+					'opening' => '09:00',
+					'closing' => '17:00',
+				),
 			),
 		),
 		array(
-			'name' => 'Fri',
+			'name'  => 'Fri',
 			'hours' => array(
-				array( 'opening' => '09:00', 'closing' => '17:00' )
+				array(
+					'opening' => '09:00',
+					'closing' => '17:00',
+				),
 			),
 		),
 		array(
-			'name' => 'Sat',
+			'name'  => 'Sat',
 			'hours' => array(),
 		),
 	);
@@ -63,7 +78,7 @@ function jetpack_business_hours_get_default_days() {
 /**
  * Dynamic rendering of the block.
  *
- * @param array  $attributes Array containing the business hours block attributes.
+ * @param array $attributes Array containing the business hours block attributes.
  *
  * @return string
  */
@@ -90,35 +105,38 @@ function jetpack_business_hours_render( $attributes ) {
 	}
 
 	foreach ( $attributes['days'] as $day ) {
-		$content   .= '<dt class="' . esc_attr( $day['name'] ) . '">' .
+		$content   .= '<div class="jetpack-business-hours__item"><dt class="' . esc_attr( $day['name'] ) . '">' .
 					ucfirst( $wp_locale->get_weekday( array_search( $day['name'], $days, true ) ) ) .
 					'</dt>';
 		$content   .= '<dd class="' . esc_attr( $day['name'] ) . '">';
 		$days_hours = '';
 
-		foreach ( $day['hours'] as $hour ) {
-			$opening     = strtotime( $hour['opening'] );
-			$closing     = strtotime( $hour['closing'] );
+		foreach ( $day['hours'] as $key => $hour ) {
+			$opening = strtotime( $hour['opening'] );
+			$closing = strtotime( $hour['closing'] );
 			if ( ! $opening || ! $closing ) {
 				continue;
 			}
 			$days_hours .= sprintf(
-				/* Translators: Business opening hours info. */
-				_x( 'From %1$s to %2$s', 'from business opening hour to closing hour', 'jetpack' ),
+				'%1$s - %2$s',
 				date( $time_format, $opening ),
 				date( $time_format, $closing )
 			);
-			$days_hours .= '<br />';
+			if ( $key + 1 < count( $day['hours'] ) ) {
+				$days_hours .= ', ';
+			}
 		}
 
 		if ( empty( $days_hours ) ) {
 			$days_hours = esc_html__( 'Closed', 'jetpack' );
 		}
 		$content .= $days_hours;
-		$content .= '</dd>';
+		$content .= '</dd></div>';
 	}
 
 	$content .= '</dl>';
+
+	Jetpack_Gutenberg::load_assets_as_required( 'business-hours' );
 
 	/**
 	 * Allows folks to filter the HTML content for the Business Hours block

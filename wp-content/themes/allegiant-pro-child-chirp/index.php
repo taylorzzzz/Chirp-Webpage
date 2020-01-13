@@ -5,9 +5,8 @@
 	<div class="container">		
 		<section id="content" class="content">
             <?php do_action( 'cpotheme_before_content' ); ?>
-
             
-
+            <!-- Front Page Posts -->
             <?php 
                 // Original Query
                 // $query = new WP_Query( 'post_type=post&paged=' . cpotheme_current_page() . '&posts_per_page=' . get_option( 'posts_per_page') . '&category__not_in=63' );
@@ -19,7 +18,8 @@
                 $args = array(
 					'post_type' => 'post',
 					'paged' => cpotheme_current_page(),
-					'posts_per_page' => '3'
+                    'posts_per_page' => '3',
+                    'category__not_in' => array(184)
 				);
 				$query = new WP_Query( $args );
             ?>
@@ -34,19 +34,7 @@
                 <a class="tagline-link button button-medium" href="/bird-bulletins">See All Bulletins</a>
             </div>
 
-
-
-            <?php 
-            // This code was replaced above in the conditional
-            /*
-            cpotheme_grid( null, 'element', 'blog', cpotheme_get_option( 'blog_columns' ), array( 'class' => 'column-narrow' ) ); 
-            */
-            ?>
-            <?php 
-            /*
-                cpotheme_numbered_pagination(); 
-            */
-            ?>
+            <!-- END - Front Page Posts -->
             
 			<?php do_action( 'cpotheme_after_content' ); ?>
 

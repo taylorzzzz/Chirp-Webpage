@@ -20,9 +20,19 @@
 			<?php
 			endwhile;
 			};
-?>
+			?>
 			
-			<?php $query = new WP_Query( 'post_type=post&paged=' . cpotheme_current_page() . '&posts_per_page=' . get_option( 'posts_per_page') . '&category_name=Bird Resources' ); ?>
+			
+			<?php 
+				$query = new WP_Query( array(
+					'post_type' => 'post',
+					'paged' => cpotheme_current_page(),
+					'posts_per_page' => get_option( 'posts_per_page'),
+					'category__not_in' => array(184) 
+					//'category_name=Wild Bird Resources'
+					)
+				); 
+			?>
 			<?php if ( $query->posts ) : ?>
 			<?php cpotheme_grid( $query->posts, 'element', 'blog', cpotheme_get_option( 'blog_columns' ), array( 'class' => 'column-narrow' ) ); ?>
 			<?php cpotheme_numbered_pagination( $query ); ?>

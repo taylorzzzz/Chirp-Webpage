@@ -42,25 +42,20 @@ class Modula {
 
 		require_once MODULA_PATH . 'includes/public/class-modula-shortcode.php';
 		require_once MODULA_PATH . 'includes/class-modula-gutenberg.php';
+		
+		require_once MODULA_PATH . 'includes/elementor/class-modula-elementor-check.php';
 
-		if ( is_admin() ) {
+		require_once MODULA_PATH . 'includes/duplicator/class-modula-duplicator.php';
 
+        require_once MODULA_PATH . 'includes/modula-beaver-block/class-modula-beaver.php';
+        require_once MODULA_PATH . 'includes/widget/class-modula-widget.php';
+
+
+        if ( is_admin() ) {
+
+			require_once MODULA_PATH . 'includes/admin/class-modula-importer-exporter.php';
 			require_once MODULA_PATH . 'includes/class-modula-upgrades.php';
-			// require_once MODULA_PATH . 'includes/admin/class-modula-admin-pointers.php';
-
-			if ( ! class_exists( 'Epsilon_Review' ) ) {
-				require_once MODULA_PATH . 'includes/libraries/class-modula-review.php';
-			}
-
-			Modula_Review::get_instance( array(
-			    'slug' => 'modula-best-grid-gallery',
-			    'messages' => array(
-			    	'notice'  => esc_html__( "Hey, I noticed you have created %s galleries - that's awesome! Could you please do me a BIG favor and give it a 5-star rating on WordPress? Just to help us spread the word and boost our motivation.", 'modula-best-grid-gallery' ),
-					'rate'    => esc_html__( 'Ok, you deserve it', 'modula-best-grid-gallery' ),
-					'rated'   => esc_html__( 'I already did', 'modula-best-grid-gallery' ),
-					'no_rate' => esc_html__( 'No, not good enough', 'modula-best-grid-gallery' ),
-			    ),
-			) );
+			require_once MODULA_PATH . 'includes/libraries/class-modula-review.php';
 
 		}
 
@@ -71,12 +66,22 @@ class Modula {
 	}
 
 	private function define_admin_hooks() {
-    
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ), 20 );
 		add_action( 'init', array( $this, 'admin_init' ), 20 );
-		add_action( 'wp_ajax_modula-reload-addons', array( $this, 'reload_addons' ), 20 );
+
+		// Add ajax action to reload extensions
+		add_action( 'wp_ajax_modula_reload_extensions', array( $this, 'reload_extensions' ), 20 );
 
 		add_action( 'plugins_loaded', array( $this, 'set_locale' ));
+
+		// SiteOrigin Widget
+		add_action('widgets_init', array( $this, 'modula_load_widget' ) );
+
+		// Classic editor button for Modula Gallery
+        add_filter('mce_buttons', array($this, 'editor_button'));
+        add_filter('mce_external_plugins', array($this, 'register_editor_plugin'));
+        add_action('wp_ajax_modula_shortcode_editor', array($this, 'modula_shortcode_editor'));
 
 		new Modula_CPT();
 
@@ -98,7 +103,7 @@ class Modula {
 	}
 
 	private function define_public_hooks() {
-
+		
 	}
 
 	/* Enqueue Admin Scripts */
@@ -193,13 +198,58 @@ class Modula {
 			wp_enqueue_script( 'modula-addon', MODULA_URL . 'assets/js/modula-addon.js', array( 'jquery' ), MODULA_LITE_VERSION, true );
 		}elseif ( 'edit.php' == $hook  ) {
 			wp_enqueue_style( 'modula-welcome-style', MODULA_URL . 'assets/css/edit.css', null, MODULA_LITE_VERSION );
+			wp_enqueue_script( 'modula-edit-screen', MODULA_URL . 'assets/js/modula-edit.js', array(), MODULA_LITE_VERSION, true );
 		}
 
 	}
 
-	public function reload_addons() {
-		delete_transient( 'modula_addons' );
-		die( 'succes' );
+	public function reload_extensions() {
+		// Run a security check first.
+		check_admin_referer( 'modula-reload-extensions', 'nonce' );
+
+		delete_transient( 'modula_all_extensions' );
+		delete_transient( 'modula_pro_licensed_extensions' );
+
+		die;
 	}
 
+    // Register and load the widget
+    public function modula_load_widget() {
+        register_widget( 'Modula_Widget' );
+    }
+
+    /**
+     * @param $buttons
+     * @return mixed
+     *
+     * Add tinymce button
+     */
+    public function editor_button($buttons) {
+        array_push($buttons, 'separator', 'modula_shortcode_editor');
+        return $buttons;
+    }
+
+    /**
+     * @param $plugin_array
+     * @return mixed
+     *
+     * Add plugin editor script
+     */
+    public function register_editor_plugin($plugin_array) {
+        $plugin_array['modula_shortcode_editor'] = MODULA_URL . 'assets/js/editor-plugin.js';
+        return $plugin_array;
+    }
+
+    /**
+     * Display galleries selection
+     */
+    public function modula_shortcode_editor() {
+        $css_path  = MODULA_URL . 'assets/css/edit.css';
+        $admin_url = admin_url();
+        $galleries = Modula_Helper::get_galleries();
+        include 'admin/tinymce-galleries.php';
+        wp_die();
+
+    }
+    
 }

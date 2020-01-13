@@ -7,11 +7,11 @@
  * Author URI: https://woocommerce.com/
  * Text Domain: woocommerce-services
  * Domain Path: /i18n/languages/
- * Version: 1.19.0
+ * Version: 1.22.2
  * WC requires at least: 3.0.0
- * WC tested up to: 3.5.5
+ * WC tested up to: 3.8
  *
- * Copyright (c) 2017 Automattic
+ * Copyright (c) 2017-2019 Automattic
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -530,13 +530,30 @@ if ( ! class_exists( 'WC_Connect_Loader' ) ) {
 
 		public function init_core_wizard_payments_config() {
 			$stripe_settings = get_option( 'woocommerce_stripe_settings', false );
-			$stripe_enabled  = is_array( $stripe_settings )
+
+			$user_elected_to_create_stripe_account  = is_array( $stripe_settings )
 				&& ( isset( $stripe_settings['create_account'] ) && 'yes' === $stripe_settings['create_account'] )
 				&& ( isset( $stripe_settings['enabled'] ) && 'yes' === $stripe_settings['enabled'] );
 
-			if ( $stripe_enabled && is_plugin_active( 'woocommerce-gateway-stripe/woocommerce-gateway-stripe.php' ) ) {
+			// In certain scenarios, the user can enter an email address but not connect Jetpack in the wizard,
+			// but instead add the Stripe keys manually and connect Jetpack after. If the existing keys are detected,
+			// forget the wizard settings and never retry
+			$stripe_already_connected = is_array( $stripe_settings )
+				&& (
+					! empty( $stripe_settings['test_publishable_key'] )
+					|| ! empty( $stripe_settings['test_secret_key'] )
+					|| ! empty( $stripe_settings['publishable_key'] )
+					|| ! empty( $stripe_settings['secret_key'] )
+				);
+
+			if ( $user_elected_to_create_stripe_account && $stripe_already_connected ) {
+				unset( $stripe_settings['email'] );
 				unset( $stripe_settings['create_account'] );
 				update_option( 'woocommerce_stripe_settings', $stripe_settings );
+				return;
+			}
+
+			if ( $user_elected_to_create_stripe_account && is_plugin_active( 'woocommerce-gateway-stripe/woocommerce-gateway-stripe.php' ) ) {
 				$this->tracks->record_user_event( 'core_wizard_stripe_setup' );
 
 				$email = isset( $stripe_settings['email'] ) ? $stripe_settings['email'] : wp_get_current_user()->user_email;
@@ -550,6 +567,16 @@ if ( ! class_exists( 'WC_Connect_Loader' ) ) {
 					if ( false !== strpos( $response->get_error_message(), 'Account already exists for the provided email.' ) ) {
 						WC_Connect_Options::update_option( 'banner_stripe', 'connection' );
 					}
+				}
+
+
+				// The Stripe settings have changed here - the keys were added,
+				// so we need to get a fresh copy.
+				$new_stripe_settings = get_option( 'woocommerce_stripe_settings', false );
+				if ( is_array( $new_stripe_settings ) ) {
+					unset( $new_stripe_settings['email'] );
+					unset( $new_stripe_settings['create_account'] );
+					update_option( 'woocommerce_stripe_settings', $new_stripe_settings );
 				}
 			}
 		}
@@ -641,6 +668,7 @@ if ( ! class_exists( 'WC_Connect_Loader' ) ) {
 			$logger = $this->get_logger();
 			$this->set_help_view( new WC_Connect_Help_View( $schema, $settings, $logger ) );
 			add_action( 'admin_notices', array( WC_Connect_Error_Notice::instance(), 'render_notice' ) );
+			add_action( 'admin_notices', array( $this, 'render_schema_notices' ) );
 		}
 
 		/**
@@ -1221,11 +1249,13 @@ if ( ! class_exists( 'WC_Connect_Loader' ) ) {
 
 		public function add_meta_boxes( $post_type, $post ) {
 			if ( $this->shipping_label->should_show_meta_box() ) {
-				add_meta_box( 'woocommerce-order-label', __( 'Shipping Label', 'woocommerce-services' ), array( $this->shipping_label, 'meta_box' ), null, 'side', 'default' );
+				wp_enqueue_style( 'wc_connect_admin' );
+				add_meta_box( 'woocommerce-order-shipment-tracking', __( 'Shipment Tracking', 'woocommerce-services' ), array( $this->shipping_label, 'meta_box' ), null, 'side', 'default', array( 'context' => 'shipment_tracking' ) );
+
+				add_meta_box( 'woocommerce-order-label', __( 'Shipping Label', 'woocommerce-services' ), array( $this->shipping_label, 'meta_box' ), null, 'normal', 'high', array( 'context' => 'shipping_label' ) );
 			}
 
 			if ( $this->should_show_shipping_debug_meta_box( $post ) ) {
-				wp_enqueue_style( 'wc_connect_admin' );
 				add_meta_box( 'woocommerce-services-shipping-debug', __( 'Shipping Debug', 'woocommerce-services' ), array( $this, 'shipping_rate_packaging_debug_log_meta_box' ), 'shop_order', 'normal', 'default' );
 			}
 		}
@@ -1344,9 +1374,12 @@ if ( ! class_exists( 'WC_Connect_Loader' ) ) {
 		}
 
 		function enqueue_wc_connect_script( $root_view, $extra_args = array() ) {
+			$wcs_connection_schemas = $this->api_client->get_service_schemas();
+
 			$payload = array(
-				'nonce'        => wp_create_nonce( 'wp_rest' ),
-				'baseURL'      => get_rest_url(),
+				'nonce'                 => wp_create_nonce( 'wp_rest' ),
+				'baseURL'               => get_rest_url(),
+				'wcs_server_connection' => is_wp_error( $wcs_connection_schemas ) ? false : true,
 			);
 
 			wp_localize_script( 'wc_connect_admin', 'wcConnectData', $payload );
@@ -1368,6 +1401,44 @@ if ( ! class_exists( 'WC_Connect_Loader' ) ) {
 					</span>
 				</div>
 			<?php
+		}
+
+		function render_schema_notices() {
+			$schemas = $this->get_service_schemas_store()->get_service_schemas();
+			if ( empty( $schemas ) || ! property_exists( $schemas, 'notices' ) || empty( $schemas->notices ) ) {
+				return;
+			}
+			$allowed_html = array(
+				'a'      => array( 'href' => array() ),
+				'strong' => array(),
+				'br'     => array(),
+			);
+			foreach ( $schemas->notices as $notice ) {
+				$dismissible = false;
+				//check if the notice is dismissible
+				if ( property_exists( $notice, 'id' ) && ! empty( $notice->id ) && property_exists( $notice, 'dismissible' ) && $notice->dismissible ) {
+					//check if the notice is being dismissed right now
+					if ( isset( $_GET['wc-connect-dismiss-server-notice'] ) && $_GET['wc-connect-dismiss-server-notice'] === $notice->id ) {
+						set_transient( 'wcc_notice_dismissed_' . $notice->id, true, MONTH_IN_SECONDS );
+						continue;
+					}
+					//check if the notice has already been dismissed
+					if ( false !== get_transient( 'wcc_notice_dismissed_' . $notice->id ) ) {
+						continue;
+					}
+
+					$dismissible = true;
+					$link_dismiss = add_query_arg( array( 'wc-connect-dismiss-server-notice' => $notice->id ) );
+				}
+				?>
+				<div class='<?php echo esc_attr( 'notice notice-' . $notice->type ) ?>' style="position: relative;">
+					<?php if ( $dismissible ): ?>
+					<a href="<?php echo esc_url( $link_dismiss ); ?>" style="text-decoration: none;" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'woocommerce-services' ); ?>"></a>
+					<?php endif; ?>
+					<p><?php echo wp_kses( $notice->message, $allowed_html ); ?></p>
+				</div>
+				<?php
+			}
 		}
 	}
 

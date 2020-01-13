@@ -21,6 +21,7 @@ function cpotheme_section_layout( $data ) {
 	$array = explode( ',', $order );
 	$count = 100;
 	$hook  = 'cpotheme_before_main';
+
 	foreach ( $array as $current_value ) {
 		if ( trim( $current_value ) ) {
 			if ( $current_value == 'content' ) {

@@ -8,6 +8,7 @@
 			<?php cpotheme_postpage_date(); ?>
 			<?php cpotheme_postpage_author(); ?>
 			<?php cpotheme_postpage_categories(); ?>
+			
 			<?php cpotheme_edit(); ?>
 		</div>
 		<div class="post-content">

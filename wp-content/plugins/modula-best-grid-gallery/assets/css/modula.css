@@ -1,11 +1,11 @@
-.modula .items .item {
+.modula .modula-items .modula-item {
 	position: absolute;
 	overflow: hidden;
 	transition: transform .3s ease-out, opacity .2s linear, top .3s, left .6s;
 	opacity: 0;
 	box-sizing: border-box;
 }
-.modula .items .item > a {
+.modula .modula-items .modula-item > a {
 	display: block;
 	position: absolute;
 	top: 0;
@@ -13,21 +13,22 @@
 	width: 100%;
 	height: 100%;
 	z-index: 10;
+	background: transparent;
 }
-.modula .items .item .jtg-social {
+.modula .modula-items .modula-item .jtg-social {
 	z-index: 10;
 }
 
-.modula .items .item.tg-loaded {
+.modula .modula-items .modula-item.tg-loaded {
 	transform: scale(1) translate(0, 0) rotate(0deg) !important;
 	opacity: 1;
 }
-.modula .items .item.tg-loaded img.pic {
+.modula .modula-items .modula-item.tg-loaded img.pic {
 	display: block;
 	opacity: 1;
 }
 
-.modula .items .item img.pic {
+.modula .modula-items .modula-item img.pic {
 	font-size:12px;
 	position:absolute;
 	display: none;
@@ -36,22 +37,22 @@
 	transition: width .3s, height .3s, transform .3s linear, opacity .2s linear;
 }
 
-.modula .items .item img.pic.lazyloaded,
-.modula .items .item img.pic.lazyload {
+.modula .modula-items .modula-item img.pic.lazyloaded,
+.modula .modula-items .modula-item img.pic.lazyload {
 	display: block;
 }
 
-.modula .items .item .description {
+.modula .modula-items .modula-item .description {
 	font-size:14px;
 }
-.modula .items .item .caption .icon {
+.modula .modula-items .modula-item .caption .icon {
 	font-size:14px;
 	position:absolute;
 	left:50%;
 	top:50%;
 	margin:-12px 0 0 -8px;
 }
-.modula .items .item .figc {
+.modula .modula-items .modula-item .figc {
 	color: #fff;
 	font-size:11px;
 	text-align: center;
@@ -60,49 +61,234 @@
 	width: 100%;
 	padding:0;
 }
-.modula .items .hidden .figc
+.modula .modula-items .hidden .figc
 {
 	display: none; 
 }
-.modula .items .hidden:hover .figc
+.modula .modula-items .hidden:hover .figc
 {
 	display: block; 
 }
 
-.modula .items .visible .figc
+.modula .modula-items .visible .figc
 {
 	display: block; 
 }
-.modula .items .always-visible .figc
+.modula .modula-items .always-visible .figc
 {
 	display: block; 
 }
-.modula .items .visible:hover .figc
+.modula .modula-items .visible:hover .figc
 {
 	display: none; 
 }
-.modula .items .caption span.text {
+.modula .modula-items .caption span.text {
 	display: block;
 	padding: 10px;
 }
-.modula .items .caption span.title {
+.modula .modula-items .caption span.title {
 	font-size:14px;
 	font-weight: bold;
 }
+/**
+Modula Filters
+ */
 .modula .filters {
-	margin:0 0 20px 0;
+	margin:20px 0 20px 0;
 }
+
+.modula .filters.vertical-filters {
+	margin-top:0;
+}
+
 .modula .filters a {
 	text-decoration: none;
 	display: inline-block;
-	margin:0 10px 0 0;
+	/*margin:0 10px 0 0;*/
 	color: #333;
+	outline:none;
+	transition:350ms ease-in;
+}
+
+.modula .filters.menu--dfefault a {
 	border-bottom: 2px solid transparent;
 }
-.modula .filters a:hover,
-.modula .filters a.selected {
-	border-bottom-color: #333;
+
+.modula .filters.colored a {
+	border:0;
+	color:#fff;
 }
+
+.modula .filters:not(.styled-menu) a:hover,
+.modula .filters:not(.styled-menu) a.selected {
+	border-bottom-color: #333;
+	border-bottom:1px solid;
+}
+body .modula .modula-item {
+	width: 100%;
+}
+body .modula.vertical-filters .modula-items {
+	width: 80%;
+	float:left;
+}
+body .modula:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.modula.vertical-filters .filters {
+	width:20%;
+	float:left;
+}
+
+body .modula .filters.vertical-filters.both-vertical + .modula-items {
+	width: 60%;
+}
+
+.modula .filters.vertical-filters a {
+	display:block;
+	margin-bottom:15px;
+}
+
+.modula .filters.vertical-filters.colored a {
+	border-radius:5px;
+	text-align:center;
+	background:#fff;
+	border:1px solid #3498db;
+	color:#3498db;
+}
+
+.modula .filters.vertical-filters.colored a:hover,
+.modula .filters.vertical-filters.colored a.selected {
+	background:#fff;
+	color:#8e44ad;
+	border-color:#8e44ad;
+}
+
+.modula .filters.horizontal-filters.colored a {
+	display:inline-block;
+	padding:0 30px;
+	margin-right:2px;
+	background:#3498db;
+	position: relative;
+	border:0px;
+}
+
+.modula .filters.horizontal-filters.colored a:hover,
+.modula .filters.horizontal-filters.colored a.selected {
+	background:#8e44ad;
+}
+
+.modula .filters.horizontal-filters.colored a:before {
+	position: absolute;
+	content: '';
+	left: 0;
+	top: 0;
+	width: 0;
+	height: 0;
+	border: none;
+	border-bottom-color: currentcolor;
+	border-bottom-style: none;
+	border-bottom-width: medium;
+	border-left-color: currentcolor;
+	border-left-style: none;
+	border-left-width: medium;
+	border-left: solid 17px white;
+	border-bottom: solid 41px transparent;
+	z-index: 1;
+	transition: .4s;
+}
+
+.modula .filters.horizontal-filters.colored a:after {
+	position: absolute;
+	content: '';
+	right: 0;
+	top: 0;
+	width: 0;
+	height: 0;
+	border: none;
+	border-bottom-color: currentcolor;
+	border-bottom-style: none;
+	border-bottom-width: medium;
+	border-left-color: currentcolor;
+	border-left-style: none;
+	border-left-width: medium;
+	border-left: solid 17px transparent;
+	border-bottom: solid 41px white;
+	z-index: 1;
+	transition: .4s;
+}
+
+.filter-by-wrapper {
+	text-align:center;
+	margin-bottom:25px;
+	text-transform: uppercase;
+}
+
+.filter-by-wrapper span {
+	cursor:pointer;
+}
+
+.filter-by-wrapper span:after {
+	content:"";
+	margin-left:15px;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 15px 10px 0 10px;
+	border-color: #0470e3 transparent transparent transparent;
+	display:inline-block;
+}
+
+.filter-by-wrapper.opened span:after {
+	content:"";
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 0 10px 15px 10px;
+	border-color: transparent transparent #d500ff transparent;
+	display:inline-block;
+}
+
+.modula .filters.vertical-filters a {
+	margin-bottom:0;
+}
+
+.menu__list li.menu__item {
+	margin:15px;
+}
+
+@media all and (min-width:1025px){
+	.filter-by-wrapper {
+		display:none !important;
+	}
+
+	.modula-gallery .filters {
+		display:block !important;
+	}
+}
+
+@media all and (max-width:1024px){
+
+	.modula.vertical-filters .filters,
+	.modula.vertical-filters .modula-items,
+	.modula .filters.vertical-filters.both-vertical + .modula-items{
+		width:100% !important;
+		float:none;
+	}
+
+	.menu__list {
+		padding:0px;
+	}
+	.menu__list li.menu__item {
+		margin:0;
+	}
+
+}
+/**
+ End Modula Filters
+ */
 .modula .jtg-social a {
 	box-shadow: none;
 }
@@ -114,10 +300,10 @@
     height: 16px;
 }
 
-.modula .items .item h2 {
+.modula .modula-items .modula-item .jtg-title {
 	margin:0;
 }
-.modula .items .item p {
+.modula .modula-items .modula-item p {
 	margin:0;
 	padding: 0;
 }	
@@ -130,7 +316,7 @@
 	padding:2em;
 }
 
-.modula .item .jtg-social a {
+.modula .modula-item .jtg-social a {
 	text-decoration: none;
 	color: #fff;
 	display: inline-block;
@@ -141,14 +327,14 @@
 	opacity: 0;
 	transition: opacity .3s;
 }
-.modula .item:hover .jtg-social a {
+.modula .modula-item:hover .jtg-social a {
 	opacity: 1;
 }
 
 /*---------------*/
 /***** pufrobo *****/
 /*---------------*/
-.modula .items .jtg-social {
+.modula .modula-items .jtg-social {
 	opacity: 0;
 	transition: opacity 0.1s;
 	right:30px;
@@ -158,35 +344,38 @@
 	transition:all .3s;
 }
 
-.modula .items .jtg-social {
+.modula .modula-items .jtg-social {
 	opacity: 1;
 }
 
-.modula .items .jtg-social a:last-of-type {
+.modula .modula-items .jtg-social a:last-of-type {
 	margin-right: 0;	
 }
 
-.modula .item.effect-pufrobo p.description {
+.modula .modula-item.effect-pufrobo p.description {
 	margin-bottom: 2em;
 }
 
-.modula .item.effect-pufrobo .figc {
+.modula .modula-item.effect-pufrobo .figc {
 	text-align: right;
 }
 
-.modula .item.effect-pufrobo h2,
-.modula .item.effect-pufrobo p {
+.modula .modula-item.effect-pufrobo .jtg-title,
+.modula .modula-item.effect-pufrobo p {
 	position: absolute;
 	right: 30px;
 	left: 30px;
 	padding: 10px 0;
 }
 
-.modula .item:hover img { opacity: .8 }
+.modula .modula-item:hover img,
+.modula .modula-items .modula-item.tg-loaded:hover img.pic {
+	opacity: .8
+}
 
-.modula .item { background-color:#000; }
+.modula .modula-item { background-color:#000; }
 
-.modula .item.effect-pufrobo p {
+.modula .modula-item.effect-pufrobo p {
 	bottom: 20%;  
 	line-height: 1.5;
 	-webkit-transform: translate3d(0,100%,0);
@@ -194,7 +383,7 @@
 	letter-spacing: 1px;
 }
 
-.modula .item.effect-pufrobo h2 {
+.modula .modula-item.effect-pufrobo .jtg-title {
 	/*top: 30px;*/
 	top: 10%;
 	-webkit-transition: -webkit-transform 0.35s;
@@ -203,12 +392,12 @@
 	transform: translate3d(0,20px,0);
 }
 
-.modula .item.effect-pufrobo:hover h2 {
+.modula .modula-item.effect-pufrobo:hover .jtg-title {
 	-webkit-transform: translate3d(0,0,0);
 	transform: translate3d(0,0,0);
 }
 
-.modula .item.effect-pufrobo h2::after {
+.modula .modula-item.effect-pufrobo .jtg-title::after {
 	position: absolute;
 	top: 80%;
 	left: 0;
@@ -220,15 +409,15 @@
 	transform: translate3d(0,40px,0);
 }
 
-.modula .item.effect-pufrobo h2::after,
-.modula .item.effect-pufrobo p {
+.modula .modula-item.effect-pufrobo .jtg-title::after,
+.modula .modula-item.effect-pufrobo p {
 	opacity: 0;
 	-webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
 	transition: opacity 0.35s, transform 0.35s;
 }
 
-.modula .item.effect-pufrobo:hover h2::after,
-.modula .item.effect-pufrobo:hover p {
+.modula .modula-item.effect-pufrobo:hover .jtg-title::after,
+.modula .modula-item.effect-pufrobo:hover p {
 	margin-top: 10px;
 	margin-bottom: 5px;
 	opacity: 1;
@@ -236,21 +425,39 @@
 	transform: translate3d(0,0,0);
 }
 
-.modula .items .item.effect-pufrobo .figc.no-title.no-description h2.jtg-title:after {
+.modula .modula-items .modula-item.effect-pufrobo .figc.no-title.no-description .jtg-title:after {
 	display: none;
 }
 
 /* TwnetyNintheen fix */
-.modula .items .item.effect-fluid-up .figc h2.jtg-title:before,
-.modula .items .item.effect-hide .figc h2.jtg-title:before,
-.modula .items .item.effect-quiet .figc h2.jtg-title:before,
-.modula .items .item.effect-reflex .figc h2.jtg-title:before,
-.modula .items .item.effect-curtain .figc h2.jtg-title:before,
-.modula .items .item.effect-lens .figc h2.jtg-title:before,
-.modula .items .item.effect-appear .figc h2.jtg-title:before,
-.modula .items .item.effect-crafty .figc h2.jtg-title:before,
-.modula .items .item.effect-seemo .figc h2.jtg-title:before,
-.modula .items .item.effect-comodo .figc h2.jtg-title:before,
-.modula .items .item.effect-pufrobo .figc h2.jtg-title:before {
+.modula .modula-items .modula-item.effect-fluid-up .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-hide .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-quiet .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-reflex .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-curtain .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-lens .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-appear .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-crafty .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-seemo .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-comodo .figc .jtg-title:before,
+.modula .modula-items .modula-item.effect-pufrobo .figc .jtg-title:before {
 	display: none;
 }
+
+#lightbox.lightbox {
+	position: fixed;
+	top:50% !important;
+	transform: translateY(-50%);
+}
+
+@media all and (max-height: 680px) {
+	.lb-outerContainer,
+	.lb-container,
+	#lightbox.lightbox .lb-image {
+		max-height:80vh;
+		width:auto !important;
+		display:inline-block;
+	}
+}
+
+.modula .modula-items .modula-item>a{cursor:zoom-in;}

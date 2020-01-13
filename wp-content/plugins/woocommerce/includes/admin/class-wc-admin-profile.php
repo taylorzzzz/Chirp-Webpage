@@ -154,7 +154,7 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 		 * @param WP_User $user
 		 */
 		public function add_customer_meta_fields( $user ) {
-			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			if ( ! apply_filters( 'woocommerce_current_user_can_edit_customer_meta_fields', current_user_can( 'manage_woocommerce' ), $user->ID ) ) {
 				return;
 			}
 
@@ -176,7 +176,7 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 											$selected = esc_attr( get_user_meta( $user->ID, $key, true ) );
 										foreach ( $field['options'] as $option_key => $option_value ) :
 											?>
-											<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( $selected, $option_key, true ); ?>><?php echo esc_attr( $option_value ); ?></option>
+											<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( $selected, $option_key, true ); ?>><?php echo esc_html( $option_value ); ?></option>
 										<?php endforeach; ?>
 									</select>
 								<?php elseif ( ! empty( $field['type'] ) && 'checkbox' === $field['type'] ) : ?>
@@ -201,6 +201,10 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 		 * @param int $user_id User ID of the user being saved
 		 */
 		public function save_customer_meta_fields( $user_id ) {
+			if ( ! apply_filters( 'woocommerce_current_user_can_edit_customer_meta_fields', current_user_can( 'manage_woocommerce' ), $user_id ) ) {
+				return;
+			}
+
 			$save_fields = $this->get_customer_meta_fields();
 
 			foreach ( $save_fields as $fieldset ) {

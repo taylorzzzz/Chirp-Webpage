@@ -1,0 +1,28 @@
+/* ----------------------------- BIRDCAM STREAM POST META BOX */
+#stream-id-label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bolder;
+}
+
+/* ----------------------------- EVENT POST META BOX */
+.event-info-metabox-content {
+    
+}
+
+.event-info-input-container {
+}
+
+#event-time-container, 
+#event-date-container {
+    display: inline-block;
+    width: 100%;
+    max-width: 200px
+}
+#event-time-container  {
+    margin-left: 30px;
+}
+.event-info-metabox-content #event-time-input {
+    width: 100%;
+    max-width: 115px;
+}

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WC_Gateway_PPEC_Cart_Handler handles button display in the cart.
+ * WC_Gateway_PPEC_Cart_Handler handles button display in the frontend.
  */
 class WC_Gateway_PPEC_Cart_Handler {
 
@@ -275,6 +275,10 @@ class WC_Gateway_PPEC_Cart_Handler {
 			return;
 		}
 
+		if ( apply_filters( 'woocommerce_paypal_express_checkout_hide_button_on_product_page', false ) ) {
+			return;
+		}
+
 		$settings = wc_gateway_ppec()->settings;
 
 		$express_checkout_img_url = apply_filters( 'woocommerce_paypal_express_checkout_button_img_url', sprintf( 'https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-%s.png', $settings->button_size ) );
@@ -431,7 +435,7 @@ class WC_Gateway_PPEC_Cart_Handler {
 		$settings = wc_gateway_ppec()->settings;
 		$client   = wc_gateway_ppec()->client;
 
-		wp_enqueue_style( 'wc-gateway-ppec-frontend-cart', wc_gateway_ppec()->plugin_url . 'assets/css/wc-gateway-ppec-frontend-cart.css' );
+		wp_enqueue_style( 'wc-gateway-ppec-frontend', wc_gateway_ppec()->plugin_url . 'assets/css/wc-gateway-ppec-frontend.css' );
 
 		$is_cart     = is_cart() && ! WC()->cart->is_empty() && 'yes' === $settings->cart_checkout_enabled;
 		$is_product  = is_product() && 'yes' === $settings->checkout_on_single_product_enabled;
@@ -505,13 +509,15 @@ class WC_Gateway_PPEC_Cart_Handler {
 	 * Creates a customer session if one is not already active.
 	 */
 	public function ensure_session() {
+		// TODO: this tries to replicate Woo core functionality of checking for frontend requests.
+		// It can be removed once we drop support for pre-3.5 versions.
 		$frontend = ( ! is_admin() || defined( 'DOING_AJAX' ) ) && ! defined( 'DOING_CRON' ) && ! defined( 'REST_REQUEST' );
 
 		if ( ! $frontend ) {
 			return;
 		}
 
-		if ( ! WC()->session->has_session() ) {
+		if ( ! empty( WC()->session ) && ! WC()->session->has_session() ) {
 			WC()->session->set_customer_session_cookie( true );
 		}
 	}

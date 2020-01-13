@@ -1,10 +1,10 @@
 === Modula Image Gallery ===
 Contributors: machothemes, silkalns
 Tags: best gallery plugin, image gallery, photo gallery, responsive gallery, wordpress gallery plugin, wordpress portfolio plugin, masonry gallery, fancy gallery, media gallery, mosaic gallery, polaroid gallery, portfolio gallery
-Requires at least: 4.6
-Tested up to: 5.1
+Requires at least: 5.1
+Tested up to: 5.3
 Requires PHP: 5.6
-Stable tag: 2.0.7
+Stable tag: 2.2.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -151,6 +151,14 @@ Your **wedding** day has to be perfect, right? So, why not make the perfect **we
 Modula is the perfect WordPress photo gallery plugin if you're a wedding planner, wedding blogger or building your own wedding website. 
 
 *Be as proud of your wedding album as you are of your wedding.*
+
+== 3rd party or external service disclaimer ==
+
+The plugin connects to our website through an API call (https://wp-modula.com/wp-json/mt/v1/get-all-extensions) in order to request a list of available extensions.
+
+IT DOES NOT SEND ANY DATA NOR DO WE COLLECT INFORMATION FROM THE REQUEST
+
+Our privacy policy can be found at this URL https://wp-modula.com/privacy-policy/
 
 == Installation ==
 = For automatic installation: =

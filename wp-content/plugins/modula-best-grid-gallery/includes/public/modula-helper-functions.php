@@ -69,8 +69,10 @@ function modula_check_lightboxes_and_links( $item_data, $item, $settings ) {
 		$item_data['link_attributes']['href'] = $item_data['image_full'];
 	}
 
-	if ( in_array( $settings['lightbox'], array( 'prettyphoto', 'fancybox', 'swipebox', 'lightbox2' ) ) ) {
-		$item_data['link_attributes']['title'] = $caption;
+	if ( in_array( $settings['lightbox'], array( 'prettyphoto', 'swipebox' ) ) ) {
+		$item_data['link_attributes']['title'] = strip_tags( $caption );
+	}elseif ( 'lightgallery' == $settings['lightbox'] ) {
+		$item_data['link_attributes']['data-sub-html'] = strip_tags( $caption );
 	}else{
 		$item_data['link_attributes']['data-title'] = $caption;
 	}
@@ -111,7 +113,7 @@ function modula_check_hover_effect( $item_data, $item, $settings ){
 
 function modula_check_custom_grid( $item_data, $item, $settings ) {
 
-	if ( 'custom-grid' != $settings['type'] ) {
+    if ( 'custom-grid' != $settings['type'] ) {
 		return $item_data;
 	}
 
@@ -139,4 +141,34 @@ function modula_enable_lazy_load( $item_data, $item, $settings ){
 	$item_data['img_attributes']['data-source'] = 'modula';
 
 	return $item_data;
+}
+
+function modula_add_align_classes( $template_data ){
+
+	if ( '' != $template_data['settings']['align'] ) {
+		$template_data['gallery_container']['class'][] = 'align' . $data->settings['align'];
+	}
+
+	return $template_data;
+}
+
+function modula_show_schemaorg( $settings ){
+	global $wp;
+
+	$current_url = home_url(add_query_arg(array(), $wp->request));
+
+	?>
+
+	<script type="application/ld+json">
+	{
+		"@context": "http://schema.org",
+		"@type"   : "ImageGallery",
+		"id"      : "<?php echo esc_url($current_url); ?>",
+		"url"     : "<?php echo esc_url($current_url); ?>"
+	}
+
+    </script>
+
+	<?php
+
 }

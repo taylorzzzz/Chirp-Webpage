@@ -2,7 +2,7 @@
 
 <?php if ( cpotheme_show_posts() ) : ?>
 <div id="main" class="main">
-	<div class="container">		
+	<div class="container">	
 		<section id="content" class="content">
 			<?php do_action( 'cpotheme_before_content' ); ?>
 			<?php cpotheme_grid( null, 'element', 'blog', cpotheme_get_option( 'blog_columns' ), array( 'class' => 'column-narrow' ) ); ?>

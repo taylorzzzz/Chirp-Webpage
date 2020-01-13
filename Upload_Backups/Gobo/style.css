@@ -1,0 +1,814 @@
+/*
+ Theme Name:   Moesia Child for Gobo
+ Description:  Moesia Child Theme for Gobo
+ Author:       Randall et al
+ Author URI:   http://goboinfo.com
+ Template:     moesia
+ Version:      1.0.0
+ Text Domain:  moesia-gobo-child
+*/
+
+/* Fonts
+---------------------------------------------------------------------------------------------------- */
+body {
+	color: #888;
+}
+body.home {
+	font-size: 15px;
+}
+
+/* Tables
+---------------------------------------------------------------------------------------------------- */
+
+table {
+	max-width: 100%;
+}
+
+th {
+	text-align: left;
+}
+
+.table {
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+	padding: 8px;
+	line-height: 1.428571429;
+	vertical-align: top;
+	border-top: 1px solid #ddd;
+}
+
+.table > thead > tr > th {
+	vertical-align: bottom;
+	border-bottom: 2px solid #ddd;
+}
+
+.table > caption + thead > tr:first-child > th,
+.table > colgroup + thead > tr:first-child > th,
+.table > thead:first-child > tr:first-child > th,
+.table > caption + thead > tr:first-child > td,
+.table > colgroup + thead > tr:first-child > td,
+.table > thead:first-child > tr:first-child > td {
+	border-top: 0;
+}
+
+.table > tbody + tbody {
+	border-top: 2px solid #ddd;
+}
+
+.table .table {
+	background-color: #fff;
+}
+
+.table-condensed > thead > tr > th,
+.table-condensed > tbody > tr > th,
+.table-condensed > tfoot > tr > th,
+.table-condensed > thead > tr > td,
+.table-condensed > tbody > tr > td,
+.table-condensed > tfoot > tr > td {
+	padding: 5px;
+}
+
+.table-bordered {
+	border: 1px solid #ddd;
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > tbody > tr > th,
+.table-bordered > tfoot > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > td,
+.table-bordered > tfoot > tr > td {
+	border: 1px solid #ddd;
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > td {
+	border-bottom-width: 2px;
+}
+
+.table-striped > tbody > tr:nth-child(odd) > td,
+.table-striped > tbody > tr:nth-child(odd) > th {
+	/*background-color: #eaeaea;*/
+	background-color: #f5f5f5;
+}
+
+.table-hover > tbody > tr:hover > td,
+.table-hover > tbody > tr:hover > th {
+	/*background-color: #f5f5f5;*/
+	background-color: #eaeaea;
+}
+
+/* Slider
+--------------------------------------------------------------*/
+
+.gobo-slider .widget_sow-slider {
+   max-width: 100%;
+   padding: 0;
+}
+
+/* Footer
+--------------------------------------------------------------*/
+
+div.site-info.container {
+	color: #aaa;
+}
+
+/* Home buttons
+--------------------------------------------------------------*/
+
+.panel-row-style-clients .so-panel.widget, .panel-row-style-employees .so-panel.widget {
+	padding-top: 10px;
+	padding-bottom: 70px;
+}
+.about .so-panel.widget {
+	padding-bottom: 50px;
+}
+#clients.clients-area, #employees.employees-area {
+	padding-bottom: 30px;
+}
+.employee {
+	padding-bottom: 0px;
+}
+.siteorigin-widget-tinymce .btn-row {
+	margin: 20px;
+	width: 100%;
+}
+.siteorigin-widget-tinymce .all-news, section#latest-news.latest-news-area .all-news {
+	margin-top: 0px;
+	border-radius: 0.25em;
+	font-size: 20px;
+	padding: 10px 15px;
+}
+.siteorigin-widget-tinymce .all-news:hover, section#latest-news.latest-news-area .all-news:hover {
+	background: #f3f3f3;
+	color: #ff6b53;
+}
+.siteorigin-widget-tinymce .btn-row .all-news {
+	margin: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.siteorigin-widget-tinymce div.home-buttons {
+	margin: 10px 10% 0;
+	background-color: #f58020;
+	/*padding: 60px 20px 35px 20px;*/
+	padding: 40px 20px 15px 20px;
+	border-radius: 0.25em;
+}
+/*.siteorigin-widget-tinymce div.home-buttons .all-news {
+	margin-bottom: 25px;
+	font-size: 30px;
+	padding: 10px 15px;
+	background: #eee;
+}*/
+.siteorigin-widget-tinymce div.home-buttons .all-news {
+	margin-bottom: 20px;
+	font-size: 26px;
+	padding: 8px 12px;
+	background: #eee;
+}
+.siteorigin-widget-tinymce div.home-buttons .all-news:hover {
+	background: #fff;
+}
+
+/* Home Feature image
+--------------------------------------------------------------*/
+
+div.home-feature-image a img.so-widget-image {
+	border: 1px solid #444;
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+}
+div.home-feature-image a img.so-widget-image:hover {
+	box-shadow: 0 0 2px #444;
+	opacity: 0.7;
+}
+
+/* Pricing table - homepage widget
+--------------------------------------------------------------*/
+
+/*
+*/
+.pricing .ow-pt-columns-atom .ow-pt-column div.ow-pt-title {
+	font-size: 1.4em;
+}
+.pricing .ow-pt-columns-atom .ow-pt-column div.ow-pt-subtitle {
+	font-size: .7em !important;
+}
+.pricing .ow-pt-columns-atom .ow-pt-column div.ow-pt-details {
+	padding: 10px 25px;
+}
+
+/* About page
+--------------------------------------------------------------*/
+
+.about .panel-grid-cell section, .about #employees.employees-area {
+	padding: 0;
+}
+
+/* News read more buttons
+--------------------------------------------------------------*/
+
+.post-navigation .nav-previous, .post-navigation .nav-next {
+	border-radius: 0.25em;
+}
+.post-navigation div.nav-links a:hover {
+	color: #fff;
+	text-decoration: none;
+}
+
+/* Post buttons
+--------------------------------------------------------------*/
+
+div.entry-content button.btn.btn-default.btn-lg, div.entry-content button.btn.btn-default.btn-sm {
+	margin: 10px;
+	border-radius: 0.25em;
+	padding: 10px;
+	background-color: #f0f0f0;
+	border: 1px solid #444;
+	text-align: center;
+	font-size: 110%;
+	line-height: 95%;
+	text-transform: uppercase;
+	font-weight: 700;
+	box-shadow: none;
+	display: table;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+	text-decoration: none;
+}
+div.entry-content button.btn.btn-default.btn-sm {
+	margin: 0px;
+	border-radius: 0.25em;
+	padding: 5px;
+	font-size: 100%;
+	line-height: 95%;
+	display: inline;
+}
+div.entry-content button.btn.btn-default.btn-lg:hover, div.entry-content button.btn.btn-default.btn-sm:hover {
+	background: #000;
+	color: #fff;
+	box-shadow: 0 0 2px #444;
+}
+div.entry-content a button.btn.btn-default.btn-lg, div.entry-content a button.btn.btn-default.btn-sm {
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+	text-decoration: none;
+}
+div.entry-content a:hover button.btn.btn-default.btn-lg, div.entry-content a:hover button.btn.btn-default.btn-sm {
+	background: #000;
+	color: #fff;
+	box-shadow: 0 0 2px #444;
+}
+div.entry-content .cta button.btn.btn-default.btn-lg {
+	display: inline-block;
+	margin: auto;
+	padding: 15px;
+	color: #fff;
+	font-weight: 700;
+	text-transform: uppercase;
+	box-shadow: none;
+	border: none;
+	background-color: #ff6b53;
+	box-shadow: 0 0 1px #adadad;
+	-webkit-transition: all 0.4s;
+	transition: all 0.4s;
+	font-size: larger;
+}
+div.entry-content .cta button.btn.btn-default.btn-lg.cta:hover {
+	background-color: #3C3C3C;
+	color: #fff;
+}
+div.entry-content .cta {
+	text-align:center;
+	padding: 20px;
+}
+
+/* Get Started form 
+--------------------------------------------------------------*/
+
+div.entry-content table.get_started td.title, div.entry-content p.get_started, div.entry-content table.get_started td select {
+	font-size: larger;
+}
+div.entry-content table.get_started input, div.entry-content span.get_started textarea {
+	font-size: larger;
+	border: 1px solid #dddddd;
+	padding: 5px;
+	background-color: #f0f0f0;
+	width: 100%;
+}
+div.entry-content span.get_started textarea {
+	height: 100px;
+}
+div.entry-content span.get_started textarea {
+	height: 100px;
+}
+div.entry-content p.get_started input[type="submit"] {
+	box-shadow: none;
+	border: 1px solid #999;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+}
+div.entry-content p.get_started input[type="submit"]:hover {
+	/*background-color: #f54f34;
+	color: #000;
+	box-shadow: 0 0 2px #999;
+	border: 1px solid #333;*/
+	background-color: #3C3C3C;
+}
+div.wpcf7-mail-sent-ok {
+	border: 2px solid #ff6b53;
+	background-color: #f0f0f0;
+	font-size: larger;
+}
+
+/* Benefits icons 
+--------------------------------------------------------------*/
+
+div.entry-content div.benefits { 
+	margin: 10px 0 10px 0;
+  	vertical-align: middle;
+	clear: both;
+	font-size: 20px;
+	line-height: 110%;
+	display: inline-block;
+}
+div.entry-content img.benefit-icon {
+	display: inline-block;
+	margin: 0 20px 20px 0;
+	float: left;	
+}
+
+/* Obfiscation of Email Addressed to prevent SPAM harvesting 
+--------------------------------------------------------------*/
+
+.hideme { display:none; }
+
+
+/* Samples 
+--------------------------------------------------------------*/
+
+div.entry-content div.options-samples .margined {
+	padding: 15px;
+	background-color: #f0f0f0;
+	border-bottom: 1px solid #ddd;
+}
+div.entry-content div.options-samples h3 {
+	text-align: center;
+}
+div.entry-content p.options-samples-footnote {
+	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+div.entry-content div.options-samples button.btn.btn-default.btn-lg {
+	margin: 10px auto 0px auto;
+	background-color: #d7dcea;
+	margin-bottom: 0px;
+}
+div.entry-content div.options-samples button.btn.btn-default.btn-lg:hover {
+	background: #000;
+	color: #fff;
+	box-shadow: 0 0 2px #444;
+}
+div.entry-content div.options-samples a:hover button.btn.btn-default.btn-lg {
+	background: #000;
+	color: #fff;
+	box-shadow: 0 0 2px #444;
+}
+div.entry-content div.options-samples div.options-samples-btn {
+    margin-left: auto;
+    margin-right: auto;
+}
+div.entry-content div.options-samples a img {
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+}
+div.entry-content div.options-samples a img:hover {
+	box-shadow: 0 0 2px #444;
+	opacity: 0.7;
+}
+
+/* Pricing grid 
+--------------------------------------------------------------*/
+
+div.entry-content div.pricing {
+	color: #555;
+}
+div.entry-content div.pricing span.price-callout {
+	font-weight: bold;
+	font-size: 16px;
+	line-height: 16px;
+}
+div.entry-content div.pricing i.fa.fa-check {
+	color: #ff6b53;
+	font-size: 20px;
+}
+div.entry-content div.pricing tr:nth-child(even) {
+	background-color: #F8F8F8;
+}
+div.entry-content div.pricing td.price-col-1 {
+	text-align: center;
+	font-size: 15px;
+	width: 15%;
+}
+div.entry-content div.pricing td.price-col-2 {
+	text-align: center;
+	font-size: 15px;
+	width: 20%;
+}
+div.entry-content div.pricing td.price-col-3 {
+	text-align: center;
+	font-size: 15px;
+	width: 25%;
+}
+div.entry-content div.pricing th.price-col-1 {
+	text-align: center;
+	background-color: #dddddd;
+	color: #444;
+}
+div.entry-content div.pricing th.price-col-2 {
+	text-align: center;
+	background-color: #CCD4EF;
+	color: #444;
+}
+div.entry-content div.pricing th.price-col-3 {
+	text-align: center;
+	background-color: #D6CCEF;
+	color: #444;
+}
+div.entry-content div.pricing span.price-head-sub {
+	font-size: 11px;
+	font-weight: normal;
+}
+div.entry-content div.pricing span.price-head-type {
+	font-size: 30px;
+	line-height: 28px;
+}
+div.entry-content div.pricing span.price-head-dollar {
+	font-size: 26px;
+	font-weight: normal;
+	line-height: 24px;
+}
+span.compress {
+    display:inline-block;
+    -webkit-transform:scale(0.9,1); /* Safari and Chrome */
+    -moz-transform:scale(0.9,1); /* Firefox */
+    -ms-transform:scale(0.9,1); /* IE 9 */
+    -o-transform:scale(0.9,1); /* Opera */
+    transform:scale(0.9,1); /* W3C */
+}
+
+/* FAQs 
+--------------------------------------------------------------*/
+
+div.entry-content span.faq-title {
+	font-weight: bold;
+	font-size: 15px;
+}
+
+/* Process steps 
+--------------------------------------------------------------*/
+
+div.entry-content div.process { 
+	font-size: larger;
+}
+div.entry-content span.process-title {
+	font-weight: bold;
+}
+
+/* Email button 
+--------------------------------------------------------------*/
+
+input.email-btn-sidebar {
+	box-shadow: none;
+	border: 1px solid #999;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+	padding: 5px 10px 5px 10px;
+	margin-left: 15px;
+	font-size: 13px;
+	letter-spacing: 1px;
+	margin-top: 10px;
+}
+input.email-btn-sidebar:hover {
+	background-color: #3C3C3C;
+}
+
+/* Search Results
+--------------------------------------------------------------*/
+
+article.page.type-page.status-publish.hentry {
+	border: 4px double #ebebeb;
+	padding: 30px;
+	background-color: #fff;
+}
+.search-result article.page.type-page.status-publish.hentry {
+}
+.search-result .page-header {
+	margin: 0px 0 20px;
+}
+.search-result h1.page-title {
+	margin: 0;
+}
+.search-result header.page-header {
+	border-bottom: 4px double #ebebeb;
+}
+.search-result div#gop-result-tax-search {
+	background-color: #ebebeb;
+	padding: 10px;
+	margin-bottom: 15px;
+}
+.search-result div#gop-result-tax-search p {
+	padding: 0px 30px 0px 5px;
+	font-size: 16px;
+	display:inline-block;
+	color: #888;
+	line-height: 150%;
+}
+.search-result input.search-btn-sidebar {
+	box-shadow: none;
+	border: 1px solid #999;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+	padding: 5px 10px;
+	margin-left: 10px;
+	font-size: 16px;
+	letter-spacing: 1px;
+	font-family: 'Roboto Condensed', sans-serif;
+}
+.search-result input.search-btn-sidebar:hover {
+	background-color: #3C3C3C;
+}
+.search-result form#searchform.search-form {
+	display:inline-block;
+}
+.search-result form#searchform.search-form input#s.search-field {
+	padding: 10px;
+}
+.search-result form#searchform.search-form label {
+	margin-bottom: 0px;
+	margin-left: 5px;
+}
+.search-result div#gop-result-tax-search p a.button {
+	box-shadow: none;
+	border: 1px solid #777;
+	color: #666;
+	background-color: #f2f2f2;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+	padding: 0px 3px 0px 3px;
+	border-radius: 3px;
+	text-align: center;
+	font-family: 'Roboto Condensed', sans-serif;
+}
+.search-result div#gop-result-tax-search p a.button:hover {
+	color: #fff;
+	background-color: #111;
+	text-decoration: none;
+}
+.search-result .fa, header.entry-header.gop-result h1.entry-title .fa {
+	color: #ccc;
+	font-size: 90%;
+	width: 25px;
+}
+header.entry-header.gop-result h1.entry-title .fa {
+	width: 35px;
+}
+.search-result .fa:hover, header.entry-header.gop-result h1.entry-title .fa:hover {
+	color: #ff6b53;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+}
+.search-result h3.entry-title {
+	margin-bottom: 0px;
+}
+.search-result div.entry-summary {
+	color: #bbb;
+	margin: 0px 0px 15px 27px;
+}
+.search-result p.gop-search-error {
+	font-size: 16px;
+	margin: 45px; 15px;
+}
+.search-result nav.navigation.pagination {
+	border-top: 2px solid #ebebeb;
+	padding-top: 10px;
+}
+.search-result div.nav-links {
+	font-size: 22px;
+}
+.search-result nav.navigation.pagination a.next.page-numbers, .search-result nav.navigation.pagination a.prev.page-numbers {
+	font-size: 70%;
+	color: #bbb;
+}
+.search-result nav.navigation.pagination .fa {
+	color: #ff6b53;
+	font-size: 220%;
+	vertical-align: -20%
+}
+.search-result nav.navigation.pagination .fa:hover, .search-result nav.navigation.pagination a.next.page-numbers:hover, .search-result nav.navigation.pagination a.prev.page-numbers:hover {
+	color: #3C3C3C;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+	text-decoration: none;
+}
+
+/* Posts
+--------------------------------------------------------------*/
+
+.hentry {
+	margin: 0 0 40px;
+}
+
+/* Pricing Toggle
+--------------------------------------------------------------*/
+
+.table1 {
+    display: none;
+}
+.table2 {
+  display: block;
+  -webkit-transition: all 0.30s ease-in-out;
+  -moz-transition: all 0.30s ease-in-out;
+  -ms-transition: all 0.30s ease-in-out;
+  -o-transition: all 0.30s ease-in-out;
+  transition: all 0.30s ease-in-out;
+}
+.showtable1:focus ~ .table1 {
+  display: block;
+}
+.showtable1:focus ~ .table2 {
+  display: none;
+}
+.showtable2:focus ~ .table1 {
+  display: none;
+}
+.showtable2:focus ~ .table2 {
+  display: block;
+}
+span.showtable1:focus ~ span.showtable2, span.showtable1, span.showtable2 {
+	margin: 0px 3px;
+	border-radius: 0.25em;
+	padding: 2px 5px;
+	color: #888;
+	background-color: #f0f0f0;
+	border: 1px solid #dddddd;
+	text-align: center;
+	font-size: 100%;
+	line-height: 95%;
+	text-transform: uppercase;
+	font-weight: 700;
+	box-shadow: none;
+	display: inline;
+	-webkit-transition: color 0.3s;
+	transition: color 0.3s;
+	text-decoration: none;
+}
+span.showtable1:focus, span.showtable2:focus, span.showtable2 {
+	outline-width: 0px;
+	color: #444;
+	border: 1px solid #444;
+	background-color: #dadada;
+}
+span.showtable1:hover, span.showtable2:hover, span.showtable1:focus ~ span.showtable2:hover {
+	background: #222;
+	color: #fff;
+	box-shadow: 0 0 2px #444;
+}
+/* span.showtable2:disabled ? */
+
+/* Surveys
+--------------------------------------------------------------*/
+
+.gop_org_lea.hentry.gop_survey {
+	padding: 0;
+}
+.hentry .entry-content img {
+	margin-bottom: 0px;
+}
+nav.navigation.post-navigation.clearfix {
+	clear: both;
+}
+
+/* Pricing Updates 20190117
+--------------------------------------------------------------*/
+
+.badge {
+	display: inline-block;
+	padding: .25em .4em;
+	font-size: 75%;
+	font-weight: 700;
+	line-height: 1;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: baseline;
+	border-radius: .25rem;
+}
+.badge-pill {
+	padding-right: .6em;
+	padding-left: .6em;
+	border-radius: 10rem;
+}
+.badge-warning {
+	color: #212529;
+	background-color: #ffc107;
+}
+.badge-info {
+	color: #fff;
+	background-color: #17a2b8;
+}
+.badge-success {
+	color: #fff;
+	background-color: #28a745;
+}
+.badge-info[href]:focus, .badge-info[href]:hover {
+	color: #fff;
+	text-decoration: none;
+	background-color: #117a8b;
+}
+.badge-success[href]:focus, .badge-success[href]:hover, a span badge-success[href]:focus, a span badge-success[href]:hover {
+	color: #fff;
+	text-decoration: none;
+	background-color: #1e7e34;
+}
+.badge-price {
+	vertical-align: top;
+	font-size: 40%;
+	font-weight: 500;
+}
+.center {
+	text-align: center;
+}
+.section-header {
+	text-align: center;
+	/*background-color: #ccd42e;*/
+	background-color: #b5be13;
+	color: #444;	
+}
+.section-sub-header {
+	text-align: center;
+	letter-spacing: 4px;
+	font-weight: bold;
+	text-transform: uppercase;
+	background-color: #dddddd;
+	font-size: 18px;
+}
+
+td.included-header {
+	white-space: nowrap;
+	text-align: center;
+}
+
+td.included-header-lite {
+	white-space: nowrap;
+	text-align: center;
+	background-color: #ffffff;
+	vertical-align: middle;
+}
+
+td.included-header-sm {
+	white-space: nowrap;
+	text-align: center;
+	background-color: #ffffff;
+	vertical-align: baseline;
+	font-size: 11px;
+}
+
+td.tools-include {
+	background-color: #fff3cd;
+	border-color: #ffeeba;
+}
+
+.pricing.table3 td {
+	text-align: center;
+}
+
+.pricing.table3 td.tool-description {
+	text-align: left;
+}
+.pricing.table3 td.tool-description span.price-callout {
+	font-weight: bold;
+	font-size: 18px;
+	line-height: 16px;
+}
+div.entry-content div.pricing span.price-enhancement {
+	font-size: 20px;
+	font-weight: normal;
+	line-height: 24px;
+}
+div.entry-content div.pricing span.price-head-dollar.green-bold {
+	font-weight: bold;
+	color: rgb(40, 167, 69);
+}
+/* RECAPTCHA
+--------------------------------------------------------------*/
+.grecaptcha-badge {opacity:0}
